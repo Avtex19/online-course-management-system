@@ -6,12 +6,7 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
-    """
-    Custom User model using email as the primary identifier.
-    
-    Follows SRP by focusing only on data representation.
-    User creation logic is handled by UserManager.
-    """
+
     username = None
     email = models.EmailField(unique=True)
     role = models.CharField(
