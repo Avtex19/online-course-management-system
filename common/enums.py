@@ -18,6 +18,7 @@ class ErrorMessages(str, Enum):
     INVALID_CREDENTIALS = "Invalid email or password"
     INACTIVE_ACCOUNT = "Account is disabled"
     REFRESH_TOKEN_REQUIRED = "Refresh token is required"
+    ACCESS_TOKEN_REQUIRED = "Access token is required"
 
 
 class SuccessMessages(str, Enum):
