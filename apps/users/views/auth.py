@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from .services import RegistrationWithTokensService, LoginWithTokensService, LogoutService
+from apps.users.services.registration import RegistrationWithTokensService
+from apps.users.services.authentication import LoginWithTokensService
+from apps.users.services.logout import LogoutService
 
 
 class RegisterView(APIView):
@@ -34,9 +36,11 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        response_data, errors = LogoutService.execute(request.data)
+        response_data, errors = LogoutService.execute(request.data, request=request)
 
         if response_data:
             return Response(response_data, status=status.HTTP_200_OK)
 
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+

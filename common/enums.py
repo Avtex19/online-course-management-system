@@ -19,6 +19,9 @@ class ErrorMessages(str, Enum):
     INACTIVE_ACCOUNT = "Account is disabled"
     REFRESH_TOKEN_REQUIRED = "Refresh token is required"
     ACCESS_TOKEN_REQUIRED = "Access token is required"
+    TOKEN_BLACKLISTED = "Token is blacklisted"
+    TOKEN_NOT_TRACKED = "Token not tracked"
+    TOKEN_MISSING_JTI = "Token missing jti claim"
 
 
 class SuccessMessages(str, Enum):
@@ -34,6 +37,17 @@ class UserFields(str, Enum):
     IS_ACTIVE = "is_active"
 
 
+class AuthHeaders(str, Enum):
+    AUTH_HEADER = "Authorization"
+    AUTH_HEADER_FALLBACK = "HTTP_AUTHORIZATION"
+    BEARER_PREFIX = "Bearer "
 
 
+class TokenFields(str, Enum):
+    REFRESH = "refresh_token"
+    ACCESS = "access_token"
+    JTI = "jti"
 
+
+class ResponseKeys(str, Enum):
+    MESSAGE = "message"

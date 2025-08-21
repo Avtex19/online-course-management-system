@@ -7,19 +7,18 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView
 )
 
-from .views import UserViewSet
-from .auth_views import RegisterView, LoginView, LogoutView
+from .views import UserViewSet, RegisterView, LoginView, LogoutView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
-    path('api/', include(router.urls)),
-    path('api/auth/register/', RegisterView.as_view(), name='user-register'),
-    path('api/auth/login/', LoginView.as_view(), name='user-login'),
-    path('api/auth/logout/', LogoutView.as_view(), name='user-logout'),
-    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('api/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
+    path('', include(router.urls)),
+    path('auth/register/', RegisterView.as_view(), name='user-register'),
+    path('auth/login/', LoginView.as_view(), name='user-login'),
+    path('auth/logout/', LogoutView.as_view(), name='user-logout'),
+    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
 ]
