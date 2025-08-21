@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from .views import UserViewSet
-from .auth_views import RegisterView
+from .auth_views import RegisterView, LoginView, LogoutView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -16,6 +16,8 @@ router.register(r'users', UserViewSet, basename='user')
 urlpatterns = [
     path('api/', include(router.urls)),
     path('api/auth/register/', RegisterView.as_view(), name='user-register'),
+    path('api/auth/login/', LoginView.as_view(), name='user-login'),
+    path('api/auth/logout/', LogoutView.as_view(), name='user-logout'),
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
