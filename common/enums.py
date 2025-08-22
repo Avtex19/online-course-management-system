@@ -35,6 +35,7 @@ class UserFields(str, Enum):
     IS_STAFF = "is_staff"
     IS_SUPERUSER = "is_superuser"
     IS_ACTIVE = "is_active"
+    ROLE = "role"
 
 
 class AuthHeaders(str, Enum):
@@ -51,3 +52,27 @@ class TokenFields(str, Enum):
 
 class ResponseKeys(str, Enum):
     MESSAGE = "message"
+
+
+class RelatedNames(str, Enum):
+    OWNED_COURSES = "owned_courses"
+    TEACHING_COURSES = "teaching_courses"
+    ENROLLED_COURSES = "enrolled_courses"
+
+
+# common/enums.py
+class ModelVerboseNames(str, Enum):
+    COURSE_TEACHER = "Course teacher"
+    COURSE_TEACHERS = "Course teachers"
+    COURSE_STUDENT = "Course student"
+    COURSE_STUDENTS = "Course students"
+
+
+# common/enums.py
+class ModelFields(str, Enum):
+    COURSE = "course"
+    USER = "user"
+    NAME = "name"
+    DESCRIPTION = "description"
+    CREATED_AT = "created_at"
+    UPDATED_AT = "updated_at"
