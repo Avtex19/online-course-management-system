@@ -63,7 +63,6 @@ class RelatedNames(str, Enum):
     ENROLLED_COURSES = "enrolled_courses"
 
 
-# common/enums.py
 class ModelVerboseNames(str, Enum):
     COURSE_TEACHER = "Course teacher"
     COURSE_TEACHERS = "Course teachers"
@@ -71,7 +70,6 @@ class ModelVerboseNames(str, Enum):
     COURSE_STUDENTS = "Course students"
 
 
-# common/enums.py
 class ModelFields(str, Enum):
     COURSE = "course"
     USER = "user"
@@ -79,3 +77,17 @@ class ModelFields(str, Enum):
     DESCRIPTION = "description"
     CREATED_AT = "created_at"
     UPDATED_AT = "updated_at"
+    ID = 'id'
+    PRIMARY_OWNER = "primary_owner"
+    ENROLLED_AT = "enrolled_at"
+    ADDED_AT = "added_at"
+
+
+class SerializerFields(str, Enum):
+    USER_ID = "user_id"
+    TEACHER_IDS = "teacher_ids"
+    STUDENT_IDS = "student_ids"
+    PRIMARY_OWNER_ID = "primary_owner_id"
+    TEACHER_COUNT = "teacher_count"
+    STUDENT_COUNT = "student_count"
+
