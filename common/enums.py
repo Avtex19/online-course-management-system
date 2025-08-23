@@ -22,6 +22,9 @@ class ErrorMessages(str, Enum):
     TOKEN_BLACKLISTED = "Token is blacklisted"
     TOKEN_NOT_TRACKED = "Token not tracked"
     TOKEN_MISSING_JTI = "Token missing jti claim"
+    USER_MUST_BE_TEACHER = "User must be teacher"
+    USER_MUST_BE_STUDENT = "User must be student"
+    USER_DOESNT_EXIST = "User does not exist"
 
 
 class SuccessMessages(str, Enum):
