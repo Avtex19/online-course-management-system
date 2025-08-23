@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
-from common.enums import UserRole, UserFields, RelatedNames,ModelVerboseNames,ModelFields
+from common.enums import UserRole, UserFields, RelatedNames, ModelVerboseNames, ModelFields
+from .managers import CourseQuerySet
 
 
 class Course(models.Model):
@@ -26,9 +27,16 @@ class Course(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = CourseQuerySet.as_manager()
 
     class Meta:
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'primary_owner'],
+                name='unique_course_per_owner'
+            )
+        ]
 
     def __str__(self):
         return self.name
