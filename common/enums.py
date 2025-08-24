@@ -34,6 +34,7 @@ class ErrorMessages(str, Enum):
     PRIMARY_OWNER_ID_POSITIVE = "Primary owner id must be positive"
     COURSE_ID_POSITIVE = "Course id must be positive"
     COURSE_ALREADY_EXISTS_FOR_TEACHER = 'A course with this name already exists for this teacher'
+    ONLY_PRIMARY_OWNER_ALLOWED = "Only the primary owner can perform this action"
 
 
 class SuccessMessages(str, Enum):
@@ -134,3 +135,12 @@ class HttpStatus(Enum):
 
 class RequestData(str, Enum):
     DATA = "data"
+
+
+class ViewActions(str, Enum):
+    CREATE = "create"
+    UPDATE = "update"
+    PARTIAL_UPDATE = "partial_update"
+    LIST = "list"
+    RETRIEVE = "retrieve"
+    DESTROY = "destroy"
