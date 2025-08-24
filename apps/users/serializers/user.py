@@ -7,6 +7,8 @@ from apps.users.models import User
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
+    first_name = serializers.CharField(required=True, max_length=150)
+    last_name = serializers.CharField(required=True, max_length=150, )
     role = serializers.ChoiceField(choices=UserRole.choices(), required=True)
 
     class Meta:
@@ -41,5 +43,3 @@ class UserListSerializer(serializers.ModelSerializer):
             UserFields.ROLE.value,
         ]
         read_only_fields = [UserFields.ID.value]
-
-
