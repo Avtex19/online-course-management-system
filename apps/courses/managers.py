@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Count
 
-from common.enums import ModelFields, SerializerFields
+from common.enums import ModelFields
 
 
 class CourseQuerySet(models.QuerySet):
