@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.users.services.registration import RegistrationWithTokensService
 from apps.users.services.authentication import LoginWithTokensService
 from apps.users.services.logout import LogoutService
-from common.enums import HttpStatus, RequestData
+from common.enums import HttpStatus
 
 
 class RegisterView(APIView):
