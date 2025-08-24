@@ -28,6 +28,12 @@ class ErrorMessages(str, Enum):
     INVALID_TOKEN = "Invalid token: {error}"
     FIRST_NAME_REQUIRED = "First name cannot be empty"
     LAST_NAME_REQUIRED = "Last name cannot be empty"
+    USER_IS_ALREADY_TEACHER = "User is already teacher"
+    PRIMARY_OWNER_IS_ALREADY_TEACHER = "Primary owner is already teacher"
+    COURSE_CANT_BE_EMPTY = "Course cannot be empty"
+    PRIMARY_OWNER_ID_POSITIVE = "Primary owner id must be positive"
+    COURSE_ID_POSITIVE = "Course id must be positive"
+    COURSE_ALREADY_EXISTS_FOR_TEACHER = 'A course with this name already exists for this teacher'
 
 
 class SuccessMessages(str, Enum):
