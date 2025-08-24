@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from common.enums import UserRole
+from common.enums import UserRole, UserFields
 from .managers import UserManager
 
 
@@ -9,6 +9,8 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=False)
+    last_name = models.CharField(max_length=150, blank=False)
     role = models.CharField(
         max_length=20,
         choices=UserRole.choices(),
@@ -17,7 +19,7 @@ class User(AbstractUser):
     )
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
     
     objects = UserManager()
     
