@@ -51,6 +51,9 @@ class TokenFields(str, Enum):
     REFRESH = "refresh_token"
     ACCESS = "access_token"
     JTI = "jti"
+    USER_ID = 'user_id'
+    IAT = 'iat'
+    EXP = 'exp'
 
 
 class ResponseKeys(str, Enum):
@@ -90,4 +93,3 @@ class SerializerFields(str, Enum):
     PRIMARY_OWNER_ID = "primary_owner_id"
     TEACHER_COUNT = "teacher_count"
     STUDENT_COUNT = "student_count"
-
