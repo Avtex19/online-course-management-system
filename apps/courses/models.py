@@ -30,16 +30,16 @@ class Course(models.Model):
     objects = CourseQuerySet.as_manager()
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = [f'-{ModelFields.CREATED_AT.value}']
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'primary_owner'],
+                fields=[ModelFields.NAME.value, ModelFields.PRIMARY_OWNER.value],
                 name='unique_course_per_owner'
             )
         ]
 
     def __str__(self):
-        return self.name
+        return getattr(self, ModelFields.NAME.value)
 
 
 class CourseTeacher(models.Model):
@@ -62,7 +62,9 @@ class CourseTeacher(models.Model):
         verbose_name_plural = ModelVerboseNames.COURSE_TEACHERS.value
 
     def __str__(self) -> str:
-        return f"{self.user} teaches {self.course}"
+        user = getattr(self, ModelFields.USER.value)
+        course = getattr(self, ModelFields.COURSE.value)
+        return f"{user} teaches {course}"
 
 
 class CourseStudent(models.Model):
@@ -85,4 +87,6 @@ class CourseStudent(models.Model):
         verbose_name_plural = ModelVerboseNames.COURSE_STUDENTS.value
 
     def __str__(self):
-        return f"{self.user} enrolled in {self.course}"
+        user = getattr(self, ModelFields.USER.value)
+        course = getattr(self, ModelFields.COURSE.value)
+        return f"{user} enrolled in {course}"

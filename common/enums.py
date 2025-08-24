@@ -26,6 +26,8 @@ class ErrorMessages(str, Enum):
     USER_MUST_BE_STUDENT = "User must be student"
     USER_DOESNT_EXIST = "User does not exist"
     INVALID_TOKEN = "Invalid token: {error}"
+    FIRST_NAME_REQUIRED = "First name cannot be empty"
+    LAST_NAME_REQUIRED = "Last name cannot be empty"
 
 
 class SuccessMessages(str, Enum):
@@ -45,6 +47,7 @@ class UserFields(str, Enum):
     ID = "id"
     FIRST_NAME = "first_name"
     LAST_NAME = "last_name"
+    LAST_LOGIN = "last_login"
 
 
 class AuthHeaders(str, Enum):
@@ -56,6 +59,8 @@ class AuthHeaders(str, Enum):
 class TokenFields(str, Enum):
     REFRESH = "refresh_token"
     ACCESS = "access_token"
+    REFRESH_SHORT = "refresh"
+    ACCESS_SHORT = "access"
     JTI = "jti"
     USER_ID = 'user_id'
     IAT = 'iat'
@@ -83,6 +88,8 @@ class ModelVerboseNames(str, Enum):
     COURSE_TEACHERS = "Course teachers"
     COURSE_STUDENT = "Course student"
     COURSE_STUDENTS = "Course students"
+    USER = "User"
+    USERS = "Users"
 
 
 class ModelFields(str, Enum):
@@ -96,6 +103,8 @@ class ModelFields(str, Enum):
     PRIMARY_OWNER = "primary_owner"
     ENROLLED_AT = "enrolled_at"
     ADDED_AT = "added_at"
+    TEACHERS = "teachers"
+    STUDENTS = "students"
 
 
 class SerializerFields(str, Enum):
