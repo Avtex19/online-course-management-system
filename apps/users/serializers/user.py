@@ -27,7 +27,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         password_confirm = attrs.get(UserFields.PASSWORD_CONFIRM.value)
         if password != password_confirm:
             raise serializers.ValidationError({
-                UserFields.PASSWORD_CONFIRM.value: ErrorMessages.PASSWORDS_DO_NOT_MATCH
+                UserFields.PASSWORD_CONFIRM.value: ErrorMessages.PASSWORDS_DO_NOT_MATCH.value
             })
         return attrs
 

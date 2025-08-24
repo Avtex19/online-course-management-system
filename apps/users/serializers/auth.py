@@ -11,7 +11,7 @@ class LogoutSerializer(serializers.Serializer):
     def validate_refresh_token(self, value):
 
         if not value:
-            raise serializers.ValidationError(ErrorMessages.REFRESH_TOKEN_REQUIRED)
+            raise serializers.ValidationError(ErrorMessages.REFRESH_TOKEN_REQUIRED.value)
         return value
 
 
@@ -27,7 +27,7 @@ class UserLoginSerializer(serializers.Serializer):
 
         if not email or not password:
             raise serializers.ValidationError({
-                ValidationFields.NON_FIELD_ERRORS.value: ErrorMessages.INVALID_CREDENTIALS
+                ValidationFields.NON_FIELD_ERRORS.value: ErrorMessages.INVALID_CREDENTIALS.value
             })
 
         return attrs
