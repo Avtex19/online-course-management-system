@@ -25,6 +25,7 @@ class ErrorMessages(str, Enum):
     USER_MUST_BE_TEACHER = "User must be teacher"
     USER_MUST_BE_STUDENT = "User must be student"
     USER_DOESNT_EXIST = "User does not exist"
+    INVALID_TOKEN = "Invalid token: {error}"
 
 
 class SuccessMessages(str, Enum):
@@ -39,7 +40,8 @@ class UserFields(str, Enum):
     IS_SUPERUSER = "is_superuser"
     IS_ACTIVE = "is_active"
     ROLE = "role"
-    PASSWORD_CONFIRM = 'password_confirm'
+    PASSWORD = "password"
+    PASSWORD_CONFIRM = "password_confirm"
     ID = "id"
     FIRST_NAME = "first_name"
     LAST_NAME = "last_name"
@@ -58,6 +60,10 @@ class TokenFields(str, Enum):
     USER_ID = 'user_id'
     IAT = 'iat'
     EXP = 'exp'
+
+
+class ValidationFields(str, Enum):
+    NON_FIELD_ERRORS = "non_field_errors"
 
 
 class ResponseKeys(str, Enum):
@@ -99,3 +105,17 @@ class SerializerFields(str, Enum):
     PRIMARY_OWNER_ID = "primary_owner_id"
     TEACHER_COUNT = "teacher_count"
     STUDENT_COUNT = "student_count"
+
+
+class HttpStatus(Enum):
+    OK = 200
+    CREATED = 201
+    BAD_REQUEST = 400
+    UNAUTHORIZED = 401
+    FORBIDDEN = 403
+    NOT_FOUND = 404
+    INTERNAL_SERVER_ERROR = 500
+
+
+class RequestData(str, Enum):
+    DATA = "data"
