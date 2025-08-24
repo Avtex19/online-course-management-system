@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from common.enums import SuccessMessages
+from common.enums import SuccessMessages, UserFields, ResponseKeys
 
 from apps.users.serializers import UserRegistrationSerializer
 from apps.users.services.authentication import AuthTokenService
@@ -17,7 +17,7 @@ class UserRegistrationService:
 
 		if serializer.is_valid():
 			validated_data = serializer.validated_data
-			validated_data.pop("password_confirm", None)
+			validated_data.pop(UserFields.PASSWORD_CONFIRM.value, None)
 			user = User.objects.create_user(**validated_data)
 			return user, None
 
@@ -45,6 +45,17 @@ class RegistrationWithTokensService:
 				'role': user.role,
 			},
 			'tokens': tokens,
+		}
+		response_data = {
+			ResponseKeys.MESSAGE.value: SuccessMessages.REGISTRATION_SUCCESS.value,
+			ResponseKeys.USER.value: {
+				UserFields.ID.value: user.id,
+				UserFields.EMAIL.value: user.email,
+				UserFields.FIRST_NAME.value: user.first_name,
+				UserFields.LAST_NAME.value: user.last_name,
+				UserFields.ROLE.value: user.role,
+			},
+			ResponseKeys.TOKENS.value: tokens,
 		}
 
 		return response_data, None
