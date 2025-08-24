@@ -36,17 +36,6 @@ class RegistrationWithTokensService:
 		tokens = AuthTokenService.generate_tokens_for_user(user)
 
 		response_data = {
-			'message': SuccessMessages.REGISTRATION_SUCCESS,
-			'user': {
-				'id': user.id,
-				'email': user.email,
-				'first_name': user.first_name,
-				'last_name': user.last_name,
-				'role': user.role,
-			},
-			'tokens': tokens,
-		}
-		response_data = {
 			ResponseKeys.MESSAGE.value: SuccessMessages.REGISTRATION_SUCCESS.value,
 			ResponseKeys.USER.value: {
 				UserFields.ID.value: user.id,
