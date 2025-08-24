@@ -15,4 +15,10 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         grouped_users = UserService.get_users_grouped_by_role()
-        return Response(grouped_users.to_dict())
+
+        serialized = {}
+        for role, users in grouped_users.grouped.items():
+            serializer = UserListSerializer(users, many=True)
+            serialized[role] = serializer.data
+
+        return Response(serialized)
