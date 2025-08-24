@@ -39,6 +39,10 @@ class UserFields(str, Enum):
     IS_SUPERUSER = "is_superuser"
     IS_ACTIVE = "is_active"
     ROLE = "role"
+    PASSWORD_CONFIRM = 'password_confirm'
+    ID = "id"
+    FIRST_NAME = "first_name"
+    LAST_NAME = "last_name"
 
 
 class AuthHeaders(str, Enum):
@@ -58,6 +62,8 @@ class TokenFields(str, Enum):
 
 class ResponseKeys(str, Enum):
     MESSAGE = "message"
+    USER = "user"
+    TOKENS = "tokens"
 
 
 class RelatedNames(str, Enum):
