@@ -20,6 +20,9 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")
     list_filter = ("created_at", "updated_at")
     inlines = [CourseTeacherInline, CourseStudentInline]
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('primary_owner')
 
 
 @admin.register(CourseTeacher)
@@ -28,6 +31,9 @@ class CourseTeacherAdmin(admin.ModelAdmin):
     search_fields = ("course__name", "user__email", "user__first_name", "user__last_name")
     list_filter = ("added_at",)
     autocomplete_fields = ("course", "user")
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('course', 'user')
 
 
 @admin.register(CourseStudent)
@@ -36,3 +42,6 @@ class CourseStudentAdmin(admin.ModelAdmin):
     search_fields = ("course__name", "user__email", "user__first_name", "user__last_name")
     list_filter = ("enrolled_at",)
     autocomplete_fields = ("course", "user")
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('course', 'user')
