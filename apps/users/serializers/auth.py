@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from common.enums import ErrorMessages
+from common.enums import ErrorMessages, TokenFields, UserFields, ValidationFields
 
 
 class LogoutSerializer(serializers.Serializer):
@@ -22,12 +22,12 @@ class UserLoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
 
-        email = attrs.get("email")
-        password = attrs.get("password")
+        email = attrs.get(UserFields.EMAIL.value)
+        password = attrs.get(UserFields.PASSWORD.value)
 
         if not email or not password:
             raise serializers.ValidationError({
-                "non_field_errors": ErrorMessages.INVALID_CREDENTIALS
+                ValidationFields.NON_FIELD_ERRORS.value: ErrorMessages.INVALID_CREDENTIALS
             })
 
         return attrs

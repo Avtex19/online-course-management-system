@@ -1,11 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from apps.users.services.registration import RegistrationWithTokensService
 from apps.users.services.authentication import LoginWithTokensService
 from apps.users.services.logout import LogoutService
+from common.enums import HttpStatus, RequestData
 
 
 class RegisterView(APIView):
@@ -15,9 +15,9 @@ class RegisterView(APIView):
         response_data, errors = RegistrationWithTokensService.execute(request.data)
 
         if response_data:
-            return Response(response_data, status=status.HTTP_201_CREATED)
+            return Response(response_data, status=HttpStatus.CREATED.value)
 
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(errors, status=HttpStatus.BAD_REQUEST.value)
 
 
 class LoginView(APIView):
@@ -27,9 +27,9 @@ class LoginView(APIView):
         response_data, errors = LoginWithTokensService.execute(request.data)
 
         if response_data:
-            return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=HttpStatus.OK.value)
 
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(errors, status=HttpStatus.BAD_REQUEST.value)
 
 
 class LogoutView(APIView):
@@ -39,8 +39,8 @@ class LogoutView(APIView):
         response_data, errors = LogoutService.execute(request.data, request=request)
 
         if response_data:
-            return Response(response_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=HttpStatus.OK.value)
 
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(errors, status=HttpStatus.BAD_REQUEST.value)
 
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from common.enums import ErrorMessages, UserRole
+from common.enums import ErrorMessages, UserRole, UserFields
 from apps.users.models import User
 
 
@@ -12,20 +12,20 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "email",
-            "first_name",
-            "last_name",
-            "role",
-            "password",
-            "password_confirm",
+            UserFields.EMAIL.value,
+            UserFields.FIRST_NAME.value,
+            UserFields.LAST_NAME.value,
+            UserFields.ROLE.value,
+            UserFields.PASSWORD.value,
+            UserFields.PASSWORD_CONFIRM.value,
         ]
 
     def validate(self, attrs):
-        password = attrs.get("password")
-        password_confirm = attrs.get("password_confirm")
+        password = attrs.get(UserFields.PASSWORD.value)
+        password_confirm = attrs.get(UserFields.PASSWORD_CONFIRM.value)
         if password != password_confirm:
             raise serializers.ValidationError({
-                "password_confirm": ErrorMessages.PASSWORDS_DO_NOT_MATCH
+                UserFields.PASSWORD_CONFIRM.value: ErrorMessages.PASSWORDS_DO_NOT_MATCH
             })
         return attrs
 
@@ -34,12 +34,12 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "role",
+            UserFields.ID.value,
+            UserFields.EMAIL.value,
+            UserFields.FIRST_NAME.value,
+            UserFields.LAST_NAME.value,
+            UserFields.ROLE.value,
         ]
-        read_only_fields = ["id"]
+        read_only_fields = [UserFields.ID.value]
 
 
