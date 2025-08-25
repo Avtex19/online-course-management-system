@@ -123,6 +123,12 @@ class SerializerFields(str, Enum):
     STUDENT_COUNT = "student_count"
 
 
+class FieldDisplayNames(str, Enum):
+    PRIMARY_OWNER = "Primary owner"
+    TEACHER = "Teacher"
+    STUDENT = "Student"
+
+
 class HttpStatus(Enum):
     OK = 200
     CREATED = 201
@@ -144,3 +150,6 @@ class ViewActions(str, Enum):
     LIST = "list"
     RETRIEVE = "retrieve"
     DESTROY = "destroy"
+
+
+
