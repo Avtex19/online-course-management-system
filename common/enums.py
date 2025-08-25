@@ -150,6 +150,7 @@ class ViewActions(str, Enum):
     LIST = "list"
     RETRIEVE = "retrieve"
     DESTROY = "destroy"
+    PARTIAL = 'partial'
 
 
 
