@@ -90,3 +90,19 @@ class CourseStudent(models.Model):
         user = getattr(self, ModelFields.USER.value)
         course = getattr(self, ModelFields.COURSE.value)
         return f"{user} enrolled in {course}"
+
+
+class Lecture(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    topic = models.CharField(max_length=255)
+    presentation = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=[ModelFields.COURSE.value, ModelFields.TOPIC.value], name='unique_topic_per_course')
+        ]
+
+
+
