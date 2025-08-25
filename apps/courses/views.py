@@ -10,7 +10,7 @@ from apps.courses.serializers import (
 from apps.courses.models import Course
 from apps.users.permissions import DenyBlacklistedToken
 from apps.courses.permissions import IsCoursePrimaryOwner
-from common.enums import ViewActions, ModelFields
+from common.enums import ViewActions, ModelFields, HttpStatus
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -79,11 +79,20 @@ class CourseViewSet(viewsets.ModelViewSet):
         return base_perms
 
     def update(self, request, *args, **kwargs):
-        """Custom response shape for both PUT and PATCH"""
-        response = super().update(request, *args, **kwargs)
-        return Response(CourseListSerializer(self.get_object()).data, status=response.status_code)
+        partial = kwargs.pop(ViewActions.PARTIAL.value, False)
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        updated_instance = serializer.save()
+
+        return Response(
+            CourseListSerializer(updated_instance).data,
+            status=HttpStatus.OK.value
+        )
 
     def partial_update(self, request, *args, **kwargs):
         """PATCH requests delegate to update with partial=True"""
-        kwargs['partial'] = True
+        kwargs[ViewActions.PARTIAL.value] = True
         return self.update(request, *args, **kwargs)
