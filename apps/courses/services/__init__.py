@@ -1,5 +1,7 @@
 from .user import UserService
 from .course import CourseCreationService, CourseUpdateService
+from .shared import CourseOwnershipGuard
+from .lecture import LectureManagementService
 from .relationship_manager import (
     CourseRelationshipManager, 
     CourseRelationshipManagerInterface,
@@ -20,12 +22,18 @@ from .validation import (
     CourseCreationValidator,
     CourseUpdateValidator
 )
-from .dtos import CourseCreationRequest, CourseUpdateRequest, CourseValidationResult, CourseUpdateValidationResult, UserValidationResult
+from .dtos import CourseCreationRequest, CourseUpdateRequest, CourseValidationResult, CourseUpdateValidationResult, UserValidationResult, LectureCreationRequest, LectureUpdateRequest, LectureValidationResult
 
 __all__ = [
     'UserService',
     'CourseCreationService',
     'CourseUpdateService',
+    
+    # Shared services
+    'CourseOwnershipGuard',
+    
+    # Lecture services
+    'LectureManagementService',
     
     # Relationship management
     'CourseRelationshipManager',
@@ -57,4 +65,7 @@ __all__ = [
     'CourseValidationResult',
     'CourseUpdateValidationResult',
     'UserValidationResult',
+    'LectureCreationRequest',
+    'LectureUpdateRequest',
+    'LectureValidationResult',
 ]
