@@ -3,10 +3,11 @@ from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
 from apps.courses.models import Course, Lecture
-from apps.courses.services.dtos import LectureCreationRequest, LectureUpdateRequest, LectureValidationResult
+from apps.courses.services.dtos import LectureCreationRequest, LectureUpdateRequest
 from apps.courses.services.lecture.validation import LectureCreationValidator, LectureUpdateValidator
 from apps.courses.services.shared.ownership_guard import CourseOwnershipGuard
 from apps.courses.services.protocols import OwnershipGuard, LectureService
+from common.enums import ModelFields
 
 
 @dataclass
@@ -75,8 +76,8 @@ class LectureManagementService(LectureService):
     def create(self, *, course, user, validated_data) -> Lecture:
         """Create a new lecture"""
         request = LectureCreationRequest(
-            topic=validated_data['topic'],
-            presentation=validated_data['presentation'],
+            topic=validated_data[ModelFields.TOPIC.value],
+            presentation=validated_data[ModelFields.PRESENTATION.value],
             course_id=course.id
         )
         return self.creation_service.create_lecture(request, course, user)
@@ -85,8 +86,8 @@ class LectureManagementService(LectureService):
         """Update an existing lecture"""
         request = LectureUpdateRequest(
             lecture_id=instance.id,
-            topic=validated_data.get('topic'),
-            presentation=validated_data.get('presentation')
+            topic=validated_data.get(ModelFields.TOPIC.value),
+            presentation=validated_data.get(ModelFields.PRESENTATION.value)
         )
         return self.update_service.update_lecture(instance, request, user)
 
