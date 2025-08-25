@@ -166,6 +166,9 @@ class URLPatterns(str, Enum):
     LECTURES = "lectures"
     COURSE_PK = "course_pk"
     PK = "pk"
+    COURSE = 'course'
+    LECTURE_LIST = "lecture_list"
+    LECTURE_DETAIL = "lecture_detail"
 
 
 class HTTPMethods(str, Enum):
@@ -175,6 +178,19 @@ class HTTPMethods(str, Enum):
     PUT = "put"
     PATCH = "patch"
     DELETE = "delete"
+
+
+class PaginationFields(str, Enum):
+    """Pagination-related field names"""
+    COUNT = "count"
+    NEXT = "next"
+    PREVIOUS = "previous"
+    RESULTS = "results"
+    PAGE = "page"
+    PAGE_SIZE = "page_size"
+    CURRENT_PAGE = "current_page"
+    TOTAL_PAGES = "total_pages"
+    PAGE_INFO = "page_info"
 
 
 
