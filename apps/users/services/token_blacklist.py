@@ -1,6 +1,6 @@
 from datetime import datetime, timezone as dt_timezone
 from dataclasses import dataclass
-from typing import Optional, Tuple, Union
+from typing import Optional
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
