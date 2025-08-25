@@ -19,7 +19,7 @@ class LectureUniquenessValidator:
             queryset = queryset.exclude(id=exclude_lecture_id)
         
         if queryset.exists():
-            raise ValidationError(f"A lecture with topic '{topic}' already exists in this course")
+            raise ValidationError(ErrorMessages.LECTURE_TOPIC_ALREADY_EXISTS.value.format(topic=topic))
 
 
 @dataclass
