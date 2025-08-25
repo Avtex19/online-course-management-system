@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from rest_framework.exceptions import PermissionDenied
 
-from apps.courses.models import Course
 from apps.courses.services.protocols import OwnershipGuard
 from common.enums import ErrorMessages
 

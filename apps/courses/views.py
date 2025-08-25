@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
@@ -14,6 +13,7 @@ from apps.courses.models import Course, Lecture
 from apps.courses.services.shared import CourseOwnershipGuard
 from apps.courses.services.lecture import LectureManagementService
 from apps.courses.services.protocols import OwnershipGuard, LectureService
+from apps.courses.pagination import CustomPageNumberPagination
 from apps.users.permissions import DenyBlacklistedToken
 from apps.courses.permissions import IsCoursePrimaryOwner
 from common.enums import ViewActions, ModelFields, HttpStatus, ErrorMessages
@@ -23,7 +23,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing courses with full CRUD operations.
     
-    - GET /courses/ - List all courses
+    - GET /courses/ - List all courses (paginated)
     - POST /courses/ - Create new course
     - GET /courses/{id}/ - Retrieve specific course
     - PUT /courses/{id}/ - Full update (replaces all fields)
@@ -32,6 +32,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     """
     queryset = Course.objects.select_related(ModelFields.PRIMARY_OWNER.value).with_counts()
     permission_classes = [IsAuthenticated, DenyBlacklistedToken]
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.action == ViewActions.CREATE.value:
@@ -108,7 +109,7 @@ class LectureViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing lectures within courses with full CRUD operations.
     
-    - GET /courses/{course_pk}/lectures/ - List all lectures for a course
+    - GET /courses/{course_pk}/lectures/ - List all lectures for a course (paginated)
     - POST /courses/{course_pk}/lectures/ - Create new lecture in course
     - GET /courses/{course_pk}/lectures/{id}/ - Retrieve specific lecture
     - PUT /courses/{course_pk}/lectures/{id}/ - Full update (replaces all fields)
@@ -117,6 +118,7 @@ class LectureViewSet(viewsets.ModelViewSet):
     """
     permission_classes = [IsAuthenticated, DenyBlacklistedToken]
     serializer_class = LectureSerializer
+    pagination_class = CustomPageNumberPagination
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

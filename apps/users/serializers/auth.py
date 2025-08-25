@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from common.enums import ErrorMessages, TokenFields, UserFields, ValidationFields
+from common.enums import ErrorMessages, UserFields, ValidationFields
 
 
 class LogoutSerializer(serializers.Serializer):

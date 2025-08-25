@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from apps.courses.models import Course, Lecture
 from apps.courses.services.dtos import LectureCreationRequest, LectureUpdateRequest, LectureValidationResult
 from apps.courses.services.validation.base import BaseValidator
-from common.enums import ErrorMessages, ModelFields
+from common.enums import ErrorMessages
 
 
 @dataclass
