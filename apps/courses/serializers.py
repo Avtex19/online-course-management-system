@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from common.enums import ModelFields, SerializerFields
-from apps.courses.models import Course
+from apps.courses.models import Course, Lecture
 from apps.users.serializers import UserListSerializer
 from apps.courses.services import CourseCreationService, CourseUpdateService, CourseCreationRequest, CourseUpdateRequest
 
@@ -21,7 +21,6 @@ class CourseListSerializer(serializers.ModelSerializer):
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
-
     primary_owner_id = serializers.IntegerField(required=False)
     teacher_ids = serializers.ListField(
         child=serializers.IntegerField(),
@@ -78,7 +77,6 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 
 
 class CourseUpdateSerializer(serializers.ModelSerializer):
-
     primary_owner_id = serializers.IntegerField(required=False)
     teacher_ids = serializers.ListField(
         child=serializers.IntegerField(),
@@ -117,7 +115,6 @@ class CourseUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-
         request = CourseUpdateRequest(
             course_id=instance.id,
             name=validated_data.get(ModelFields.NAME.value),
@@ -129,3 +126,16 @@ class CourseUpdateSerializer(serializers.ModelSerializer):
 
         course_service = CourseUpdateService()
         return course_service.update_course(instance, request)
+
+
+class LectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lecture
+        fields = [
+            ModelFields.ID.value,
+            ModelFields.TOPIC.value,
+            ModelFields.PRESENTATION.value,
+            ModelFields.CREATED_AT.value,
+            ModelFields.UPDATED_AT.value,
+        ]
+        read_only_fields = [ModelFields.ID.value, ModelFields.CREATED_AT.value, ModelFields.UPDATED_AT.value]

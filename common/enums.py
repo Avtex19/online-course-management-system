@@ -11,6 +11,7 @@ class UserRole(Enum):
 
 
 class ErrorMessages(str, Enum):
+    COURSE_DOESNT_EXIST = "Course does not exist"
     PASSWORDS_DO_NOT_MATCH = "Passwords do not match"
     EMAIL_REQUIRED = "The Email field must be set"
     SUPERUSER_STAFF_REQUIRED = "Superuser must have is_staff=True."
@@ -35,6 +36,7 @@ class ErrorMessages(str, Enum):
     COURSE_ID_POSITIVE = "Course id must be positive"
     COURSE_ALREADY_EXISTS_FOR_TEACHER = 'A course with this name already exists for this teacher'
     ONLY_PRIMARY_OWNER_ALLOWED = "Only the primary owner can perform this action"
+    COURSE_ACCESS_DENIED = "You don't have permission to manage this course"
 
 
 class SuccessMessages(str, Enum):
@@ -112,6 +114,9 @@ class ModelFields(str, Enum):
     ADDED_AT = "added_at"
     TEACHERS = "teachers"
     STUDENTS = "students"
+    TOPIC = 'topic'
+    PRESENTATION = 'presentation'
+    COURSE_PK = "course_pk"
 
 
 class SerializerFields(str, Enum):
