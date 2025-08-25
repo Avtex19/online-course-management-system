@@ -37,6 +37,7 @@ class ErrorMessages(str, Enum):
     COURSE_ALREADY_EXISTS_FOR_TEACHER = 'A course with this name already exists for this teacher'
     ONLY_PRIMARY_OWNER_ALLOWED = "Only the primary owner can perform this action"
     COURSE_ACCESS_DENIED = "You don't have permission to manage this course"
+    LECTURE_TOPIC_ALREADY_EXISTS = "A lecture with topic '{topic}' already exists in this course"
 
 
 class SuccessMessages(str, Enum):
@@ -78,6 +79,7 @@ class TokenFields(str, Enum):
 
 class ValidationFields(str, Enum):
     NON_FIELD_ERRORS = "non_field_errors"
+    DETAIL = "detail"
 
 
 class ResponseKeys(str, Enum):
@@ -156,6 +158,23 @@ class ViewActions(str, Enum):
     RETRIEVE = "retrieve"
     DESTROY = "destroy"
     PARTIAL = 'partial'
+
+
+class URLPatterns(str, Enum):
+    """URL patterns for routing"""
+    COURSES = "courses"
+    LECTURES = "lectures"
+    COURSE_PK = "course_pk"
+    PK = "pk"
+
+
+class HTTPMethods(str, Enum):
+    """HTTP methods for ViewSet actions"""
+    GET = "get"
+    POST = "post"
+    PUT = "put"
+    PATCH = "patch"
+    DELETE = "delete"
 
 
 
