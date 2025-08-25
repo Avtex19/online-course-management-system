@@ -1,16 +1,22 @@
 from rest_framework import viewsets
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 from apps.courses.serializers import (
     CourseListSerializer,
     CourseCreateSerializer,
     CourseUpdateSerializer,
+    LectureSerializer,
 )
-from apps.courses.models import Course
+from apps.courses.models import Course, Lecture
+from apps.courses.services.shared import CourseOwnershipGuard
+from apps.courses.services.lecture import LectureManagementService
+from apps.courses.services.protocols import OwnershipGuard, LectureService
 from apps.users.permissions import DenyBlacklistedToken
 from apps.courses.permissions import IsCoursePrimaryOwner
-from common.enums import ViewActions, ModelFields, HttpStatus
+from common.enums import ViewActions, ModelFields, HttpStatus, ErrorMessages
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -96,3 +102,64 @@ class CourseViewSet(viewsets.ModelViewSet):
         """PATCH requests delegate to update with partial=True"""
         kwargs[ViewActions.PARTIAL.value] = True
         return self.update(request, *args, **kwargs)
+
+
+class LectureViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing lectures within courses with full CRUD operations.
+    
+    - GET /courses/{course_pk}/lectures/ - List all lectures for a course
+    - POST /courses/{course_pk}/lectures/ - Create new lecture in course
+    - GET /courses/{course_pk}/lectures/{id}/ - Retrieve specific lecture
+    - PUT /courses/{course_pk}/lectures/{id}/ - Full update (replaces all fields)
+    - PATCH /courses/{course_pk}/lectures/{id}/ - Partial update (updates only provided fields)
+    - DELETE /courses/{course_pk}/lectures/{id}/ - Delete lecture
+    """
+    permission_classes = [IsAuthenticated, DenyBlacklistedToken]
+    serializer_class = LectureSerializer
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.ownership_guard: OwnershipGuard = CourseOwnershipGuard()
+        self.lecture_service: LectureService = LectureManagementService(ownership_guard=self.ownership_guard)
+
+    def _get_course(self) -> Course:
+        """Get course from URL parameter with proper error handling"""
+        try:
+            return Course.objects.get(id=self.kwargs[ModelFields.COURSE_PK.value])
+        except Course.DoesNotExist:
+            raise NotFound(ErrorMessages.COURSE_DOESNT_EXIST.value)
+
+    def get_queryset(self):
+        """Filter lectures by course from URL parameter"""
+        return (
+            Lecture.objects
+            .select_related(ModelFields.COURSE.value)
+            .filter(course_id=self.kwargs[ModelFields.COURSE_PK.value])
+        )
+
+    def perform_create(self, serializer):
+        """POST"""
+        course = self._get_course()
+        self.lecture_service.create(
+            course=course,
+            user=self.request.user,
+            validated_data=serializer.validated_data
+        )
+
+    def perform_update(self, serializer):
+        """PUT/PATCH - Update lecture using service layer"""
+        self.lecture_service.update(
+            instance=serializer.instance,
+            user=self.request.user,
+            validated_data=serializer.validated_data,
+            partial=getattr(self, ViewActions.PARTIAL.value, False)
+        )
+
+    def perform_destroy(self, instance):
+        """DELETE - Delete lecture using service layer"""
+        self.lecture_service.delete(instance=instance, user=self.request.user)
+
+
+
+
