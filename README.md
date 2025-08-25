@@ -37,6 +37,15 @@ A comprehensive, enterprise-grade course management platform built with Django a
 - **Course enrollment system**
 - **Unique course names** per teacher constraint
 - **Atomic transactions** for data consistency
+- **Pagination support** for list endpoints
+
+### Lecture Management
+- **Nested CRUD operations** for lectures within courses
+- **Lecture ownership validation** (course owners and assigned teachers)
+- **Topic uniqueness** within each course
+- **Comprehensive validation pipeline** with business rules
+- **Service layer architecture** following SOLID principles
+- **Pagination support** for lecture lists
 
 ### Enterprise Architecture
 - **SOLID principles** implementation
@@ -45,6 +54,8 @@ A comprehensive, enterprise-grade course management platform built with Django a
 - **Interface segregation** for better maintainability
 - **Comprehensive validation** with custom validators
 - **N+1 query optimization** with select_related
+- **Enum-based constants** eliminating magic strings
+- **Protocol-based interfaces** for dependency inversion
 
 ## Technology Stack
 
@@ -270,10 +281,44 @@ Authorization: Bearer your-access-token
 
 ### Course Endpoints
 
-#### List Courses
+#### List Courses (Paginated)
 ```http
-GET /api/courses/
+GET /api/courses/?page=1&page_size=10
 Authorization: Bearer your-access-token
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `page_size`: Items per page (default: 10, max: 100)
+
+**Response:**
+```json
+{
+  "count": 25,
+  "next": "http://localhost:8000/api/courses/?page=2&page_size=10",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "name": "Introduction to Python",
+      "description": "Learn Python programming fundamentals",
+      "primary_owner": {
+        "id": 1,
+        "email": "teacher@example.com",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "role": "teacher"
+      },
+      "teacher_count": 2,
+      "student_count": 5
+    }
+  ],
+  "page_info": {
+    "current_page": 1,
+    "total_pages": 3,
+    "page_size": 10
+  }
+}
 ```
 
 #### Create Course
@@ -298,6 +343,117 @@ Authorization: Bearer your-access-token
 
 #### Update Course (Full)
 ```http
+PUT /api/courses/{id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "name": "Advanced Python Programming",
+  "description": "Advanced Python concepts and frameworks",
+  "primary_owner_id": 1,
+  "teacher_ids": [2, 3],
+  "student_ids": [4, 5, 6]
+}
+```
+
+#### Update Course (Partial)
+```http
+PATCH /api/courses/{id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "name": "Updated Course Name"
+}
+```
+
+#### Delete Course
+```http
+DELETE /api/courses/{id}/
+Authorization: Bearer your-access-token
+```
+
+### Lecture Endpoints
+
+#### List Lectures for a Course (Paginated)
+```http
+GET /api/courses/{course_id}/lectures/?page=1&page_size=10
+Authorization: Bearer your-access-token
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `page_size`: Items per page (default: 10, max: 100)
+
+**Response:**
+```json
+{
+  "count": 15,
+  "next": "http://localhost:8000/api/courses/1/lectures/?page=2&page_size=10",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "topic": "Introduction to Python Programming",
+      "presentation": "python_intro_slides.pdf",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "page_info": {
+    "current_page": 1,
+    "total_pages": 2,
+    "page_size": 10
+  }
+}
+```
+
+#### Create Lecture
+```http
+POST /api/courses/{course_id}/lectures/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "topic": "Introduction to Python Programming",
+  "presentation": "python_intro_slides.pdf"
+}
+```
+
+#### Retrieve Lecture
+```http
+GET /api/courses/{course_id}/lectures/{lecture_id}/
+Authorization: Bearer your-access-token
+```
+
+#### Update Lecture (Full)
+```http
+PUT /api/courses/{course_id}/lectures/{lecture_id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "topic": "Advanced Python Concepts",
+  "presentation": "advanced_python.pdf"
+}
+```
+
+#### Update Lecture (Partial)
+```http
+PATCH /api/courses/{course_id}/lectures/{lecture_id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "topic": "Updated Topic Name"
+}
+```
+
+#### Delete Lecture
+```http
+DELETE /api/courses/{course_id}/lectures/{lecture_id}/
+Authorization: Bearer your-access-token
+```
 PUT /api/courses/{id}/
 Authorization: Bearer your-access-token
 Content-Type: application/json
@@ -383,6 +539,12 @@ Authorization: Bearer your-access-token
 | Update Own Course | Yes | No | No |
 | Delete Own Course | Yes | No | No |
 | Manage Course Members | Yes | No | No |
+| Create Lecture | Yes | Yes* | No |
+| View Lectures | Yes | Yes | Yes |
+| Update Lecture | Yes | Yes* | No |
+| Delete Lecture | Yes | Yes* | No |
+
+*Only for courses where they are assigned as teachers
 
 ## Project Structure
 
@@ -390,18 +552,28 @@ Authorization: Bearer your-access-token
 online-course-management-system/
 ├── apps/
 │   ├── courses/                    # Course management app
-│   │   ├── models.py              # Course, CourseTeacher, CourseStudent models
-│   │   ├── views.py               # CourseViewSet (CRUD operations)
+│   │   ├── models.py              # Course, CourseTeacher, CourseStudent, Lecture models
+│   │   ├── views.py               # CourseViewSet, LectureViewSet (CRUD operations)
 │   │   ├── serializers.py         # API serializers
+│   │   ├── pagination.py          # Custom pagination classes
 │   │   ├── permissions.py         # IsCoursePrimaryOwner permission
 │   │   ├── admin.py               # Django admin configuration
 │   │   ├── services/              # Service layer (business logic)
+│   │   │   ├── protocols.py       # Service-level protocols (LectureService, OwnershipGuard)
 │   │   │   ├── course.py          # CourseCreationService, CourseUpdateService
 │   │   │   ├── user.py            # UserService
 │   │   │   ├── relationship_manager.py # Course relationship management
 │   │   │   ├── dtos/              # Data Transfer Objects
 │   │   │   │   ├── course.py      # Course-related DTOs
-│   │   │   │   └── user.py        # User-related DTOs
+│   │   │   │   ├── user.py        # User-related DTOs
+│   │   │   │   └── lecture.py     # Lecture-related DTOs
+│   │   │   ├── lecture/           # Lecture module
+│   │   │   │   ├── services.py    # LectureCreationService, LectureUpdateService, LectureManagementService
+│   │   │   │   ├── validation.py  # Lecture validation pipeline
+│   │   │   │   └── __init__.py    # Lecture module exports
+│   │   │   ├── shared/            # Shared components
+│   │   │   │   ├── ownership_guard.py # CourseOwnershipGuard
+│   │   │   │   └── __init__.py    # Shared module exports
 │   │   │   └── validation/        # Validation layer
 │   │   │       ├── base.py        # Base validator with shared logic
 │   │   │       ├── creation.py    # Course creation validation
@@ -454,6 +626,8 @@ online-course-management-system/
 3. **Dependency Injection**: Inject dependencies via constructor parameters
 4. **Interface Segregation**: Create focused, single-purpose interfaces
 5. **Validation Pipeline**: Use pipeline pattern for complex validation
+6. **Protocol-based Interfaces**: Use ABC protocols for dependency inversion
+7. **Enum-based Constants**: Eliminate magic strings throughout the codebase
 
 ### Example Service Implementation
 ```python
