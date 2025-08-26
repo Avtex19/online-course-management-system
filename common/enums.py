@@ -125,6 +125,10 @@ class ConstraintNames(str, Enum):
     UNIQUE_HOMEWORK_TITLE_PER_LECTURE = "unique_homework_title_per_lecture"
     GRADE_RANGE_CHECK = "grade_range_check"
     UNIQUE_SUBMISSION_PER_STUDENT = 'unique_submission_per_student_per_homework'
+    UNIQUE_COURSE_PER_OWNER = 'unique_course_per_owner'
+    UNIQUE_COURSE_TEACHER = 'unique_course_teacher'
+    UNIQUE_COURSE_STUDENT = 'unique_course_student'
+    UNIQUE_TOPIC_PER_COURSE = 'unique_topic_per_course'
 
 
 class ModelFields(str, Enum):
@@ -143,31 +147,28 @@ class ModelFields(str, Enum):
     TOPIC = 'topic'
     PRESENTATION = 'presentation'
     COURSE_PK = "course_pk"
-    
-    # Lecture fields
     LECTURE = "lecture"
-    
-    # Homework fields
     HOMEWORK = "homework"
     TITLE = "title"
     DUE_DATE = "due_date"
     CREATED_BY = "created_by"
-    
-    # Homework submission fields
     SUBMISSION = "submission"
     CONTENT = "content"
     SUBMITTED_AT = "submitted_at"
     IS_SUBMITTED = "is_submitted"
     STUDENT = "student"
-    
-    # Homework grade fields
     GRADE = "grade"
     COMMENTS = "comments"
     GRADED_BY = "graded_by"
     GRADED_AT = "graded_at"
-    # Grade comments
     AUTHOR = "author"
     COMMENT = "comment"
+    COURSE_TEACHER = "CourseTeacher"
+    COURSE_STUDENT = "CourseStudent"
+
+
+class UploadPaths(str, Enum):
+    PRESENTATIONS = 'presentations/'
 
 
 class SerializerFields(str, Enum):
