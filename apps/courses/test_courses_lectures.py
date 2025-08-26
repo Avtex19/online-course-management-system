@@ -126,3 +126,40 @@ def test_lecture_crud_with_file_upload(api_client, teacher):
     assert del_resp.status_code == status.HTTP_204_NO_CONTENT
 
 
+def test_course_create_api_minimal(api_client, teacher):
+    resp = auth(api_client, teacher).post(
+        "/api/courses/",
+        {"name": "C-API", "description": "Created via API"},
+        format="json",
+    )
+    assert resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
+    assert resp.data["name"] == "C-API"
+    assert resp.data["primary_owner"]["id"] == teacher.id
+
+
+def test_course_add_members_after_create(api_client, teacher, other_teacher, student):
+    # create minimal
+    create_resp = auth(api_client, teacher).post(
+        "/api/courses/",
+        {"name": "C-API2", "description": "D"},
+        format="json",
+    )
+    assert create_resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
+    course_id = create_resp.data["id"]
+
+    # update memberships
+    patch_resp = auth(api_client, teacher).patch(
+        f"/api/courses/{course_id}/",
+        {"teacher_ids": [other_teacher.id], "student_ids": [student.id]},
+        format="json",
+    )
+    assert patch_resp.status_code == status.HTTP_200_OK
+
+    # verify via list counts
+    list_resp = auth(api_client, teacher).get("/api/courses/?page=1&page_size=10")
+    assert list_resp.status_code == status.HTTP_200_OK
+    # find our course
+    found = next(c for c in list_resp.data["results"] if c["id"] == course_id)
+    assert found["teacher_count"] >= 1
+    assert found["student_count"] >= 1
+
