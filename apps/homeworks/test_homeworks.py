@@ -200,7 +200,7 @@ def test_student_can_patch_own_submission_content(api_client, student, submissio
 def test_other_student_cannot_patch_submission(api_client, unenrolled_student, submission):
     url = f"/api/courses/{submission.homework.lecture.course_id}/lectures/{submission.homework.lecture_id}/homeworks/{submission.homework_id}/submissions/{submission.id}/"
     resp = auth(api_client, unenrolled_student).patch(url, {"content": "steal"}, format="json")
-    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    assert resp.status_code == status.HTTP_404_NOT_FOUND
 
 
 def test_empty_content_validation_on_submission_patch(api_client, student, submission):
