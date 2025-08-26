@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'apps.users',
-    'apps.courses'
+    'apps.courses',
+    'apps.homeworks'
 ]
 
 MIDDLEWARE = [
@@ -83,8 +84,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),  # Increased to 1 hour for development
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Increased to 1 day for development
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
