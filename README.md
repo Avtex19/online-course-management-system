@@ -932,14 +932,15 @@ uv run pytest --cov=apps --cov-report=term-missing
 - Tests use the default SQLite database and run migrations automatically.
 - If you use pip instead of uv, replace `uv run` with `python -m` (e.g., `python -m pytest`).
 
-```mermaid
 erDiagram
     USER ||--o{ COURSE : "owns (primary_owner)"
-    USER }o--o{ COURSE : "teaches"
-    USER }o--o{ COURSE : "enrolled in"
+    COURSE ||--o{ COURSETEACHER : "has teachers"
+    COURSE ||--o{ COURSESTUDENT : "has students"
+    USER ||--o{ COURSETEACHER : "teaches courses"
+    USER ||--o{ COURSESTUDENT : "enrolled in courses"
     COURSE ||--o{ LECTURE : "has"
     LECTURE ||--o{ HOMEWORK : "has"
-    HOMEWORK ||--o{ HOMEWORKSUBMISSION : "submitted by"
+    HOMEWORK ||--o{ HOMEWORKSUBMISSION : "submitted for"
     USER ||--o{ HOMEWORK : "creates"
     USER ||--o{ HOMEWORKSUBMISSION : "submits"
     HOMEWORKSUBMISSION ||--|| HOMEWORKGRADE : "graded as"
@@ -953,51 +954,79 @@ erDiagram
         string first_name
         string last_name
         string role
+        datetime date_joined
+        boolean is_active
     }
-
+    
     COURSE {
         int id
         string name
         text description
         int primary_owner_id
+        datetime created_at
+        datetime updated_at
     }
-
+    
+    COURSETEACHER {
+        int id
+        int course_id
+        int user_id
+        datetime added_at
+    }
+    
+    COURSESTUDENT {
+        int id
+        int course_id
+        int user_id
+        datetime enrolled_at
+    }
+    
     LECTURE {
         int id
+        int course_id
         string topic
         file presentation
+        datetime created_at
+        datetime updated_at
     }
-
+    
     HOMEWORK {
         int id
+        int lecture_id
         string title
         text description
         datetime due_date
-        int lecture_id
         int created_by_id
+        datetime created_at
+        datetime updated_at
     }
-
+    
     HOMEWORKSUBMISSION {
         int id
-        text content
-        bool is_submitted
         int homework_id
         int student_id
+        text content
+        datetime submitted_at
+        datetime updated_at
+        boolean is_submitted
     }
-
+    
     HOMEWORKGRADE {
         int id
+        int submission_id
         decimal grade
         text comments
-        int submission_id
         int graded_by_id
+        datetime graded_at
+        datetime updated_at
     }
-
+    
     GRADECOMMENT {
         int id
-        text comment
         int grade_id
         int author_id
+        text comment
+        datetime created_at
+        datetime updated_at
     }
-
 
