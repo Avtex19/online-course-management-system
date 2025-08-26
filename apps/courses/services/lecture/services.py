@@ -85,7 +85,7 @@ class LectureManagementService(LectureService):
     def update(self, *, instance, user, validated_data, partial=False) -> Lecture:
         """Update an existing lecture"""
         request = LectureUpdateRequest(
-            lecture_id=instance.id,
+            entity_id=instance.id,
             topic=validated_data.get(ModelFields.TOPIC.value),
             presentation=validated_data.get(ModelFields.PRESENTATION.value)
         )

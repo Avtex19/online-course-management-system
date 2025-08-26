@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from common.enums import ModelFields, SerializerFields
+from common.enums import ModelFields, SerializerFields, RequestData, SerializerKwargs
 from apps.courses.models import Course, Lecture
 from apps.users.serializers import UserListSerializer
 from apps.courses.services import CourseCreationService, CourseUpdateService, CourseCreationRequest, CourseUpdateRequest
@@ -44,10 +44,14 @@ class CourseCreateSerializer(serializers.ModelSerializer):
             SerializerFields.TEACHER_IDS.value,
             SerializerFields.STUDENT_IDS.value
         ]
+
         extra_kwargs = {
-            SerializerFields.PRIMARY_OWNER_ID.value: {'write_only': True, 'required': False},
-            SerializerFields.TEACHER_IDS.value: {'write_only': True},
-            SerializerFields.STUDENT_IDS.value: {'write_only': True},
+            SerializerFields.PRIMARY_OWNER_ID.value: {
+                SerializerKwargs.WRITE_ONLY.value: True,
+                SerializerKwargs.REQUIRED.value: False,
+            },
+            SerializerFields.TEACHER_IDS.value: {SerializerKwargs.WRITE_ONLY.value: True},
+            SerializerFields.STUDENT_IDS.value: {SerializerKwargs.WRITE_ONLY.value: True},
         }
 
     def to_representation(self, instance):
@@ -60,7 +64,7 @@ class CourseCreateSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        request_obj = self.context.get('request', None)
+        request_obj = self.context.get(RequestData.REQUEST.value, None)
         user_obj = request_obj.user if request_obj else None
         authenticated_user_id = user_obj.id if user_obj else None
 
@@ -101,9 +105,12 @@ class CourseUpdateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [ModelFields.ID.value]
         extra_kwargs = {
-            SerializerFields.PRIMARY_OWNER_ID.value: {'write_only': True},
-            SerializerFields.TEACHER_IDS.value: {'write_only': True},
-            SerializerFields.STUDENT_IDS.value: {'write_only': True},
+            SerializerFields.PRIMARY_OWNER_ID.value: {
+                SerializerKwargs.WRITE_ONLY.value: True,
+                SerializerKwargs.REQUIRED.value: False,
+            },
+            SerializerFields.TEACHER_IDS.value: {SerializerKwargs.WRITE_ONLY.value: True},
+            SerializerFields.STUDENT_IDS.value: {SerializerKwargs.WRITE_ONLY.value: True},
         }
 
     def to_representation(self, instance):

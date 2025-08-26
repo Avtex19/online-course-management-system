@@ -116,10 +116,10 @@ class LogoutService:
 
     @staticmethod
     def _blacklist_refresh_token(refresh_token: str) -> BlacklistResult:
-        success, error = TokenBlacklistService.blacklist_refresh_token(refresh_token)
-        return BlacklistResult(success=success, error=error)
+        result = TokenBlacklistService.blacklist_refresh_token(refresh_token)
+        return BlacklistResult(success=result.success, error=result.error)
 
     @staticmethod
     def _blacklist_access_token(access_token: str) -> BlacklistResult:
-        success, error = AccessTokenBlacklistService.blacklist(access_token)
-        return BlacklistResult(success=success, error=error)
+        result = AccessTokenBlacklistService.blacklist(access_token)
+        return BlacklistResult(success=result.success, error=result.error)

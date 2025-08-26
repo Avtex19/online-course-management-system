@@ -131,3 +131,6 @@ class LectureUpdateValidationContext:
     request: LectureUpdateRequest
     instance: Lecture
     errors: list[str] = field(default_factory=list)
+
+
+

@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from apps.users.permissions import DenyBlacklistedToken
 from apps.users.services.registration import RegistrationWithTokensService
 from apps.users.services.authentication import LoginWithTokensService
 from apps.users.services.logout import LogoutService
@@ -33,7 +34,7 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,DenyBlacklistedToken]
 
     def post(self, request):
         response_data, errors = LogoutService.execute(request.data, request=request)
