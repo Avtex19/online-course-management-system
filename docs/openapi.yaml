@@ -1,0 +1,887 @@
+openapi: 3.0.3
+info:
+  title: Online Course Management System API
+  version: 1.0.0
+  description: |
+    Detailed REST API for Courses, Lectures (with file uploads), Homeworks, Submissions,
+    Grades, and Grade Comments.
+
+    Authentication: JWT Bearer tokens
+    Authorization: Role-based (teacher, student) and ownership rules
+  contact:
+    name: API Support
+    email: support@ocms.local
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Courses
+    description: Course management
+  - name: Lectures
+    description: Lectures within a course (file upload supported)
+  - name: Homeworks
+    description: Homeworks within a lecture
+  - name: Submissions
+    description: Student submissions for homework
+  - name: Grades
+    description: Teacher grades for submissions
+  - name: GradeComments
+    description: Comments on grades (teacher and submission owner)
+
+paths:
+  /auth/register/:
+    post:
+      tags: [Auth]
+      summary: Register a user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, password_confirm, first_name, last_name, role]
+              properties:
+                email: {type: string, format: email}
+                password: {type: string, format: password}
+                password_confirm: {type: string, format: password}
+                first_name: {type: string}
+                last_name: {type: string}
+                role: {type: string, enum: [teacher, student]}
+            examples:
+              teacher:
+                value:
+                  email: teacher1@example.com
+                  password: pass12345
+                  password_confirm: pass12345
+                  first_name: Jane
+                  last_name: Smith
+                  role: teacher
+      responses:
+        '201': {description: Registered}
+        '400': {$ref: '#/components/responses/ValidationError'}
+
+  /auth/login/:
+    post:
+      tags: [Auth]
+      summary: Obtain JWT tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: {type: string}
+                password: {type: string}
+            examples:
+              login:
+                value:
+                  email: teacher1@example.com
+                  password: pass12345
+      responses:
+        '200':
+          description: Tokens issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access: {type: string}
+                  refresh: {type: string}
+        '400': {$ref: '#/components/responses/ValidationError'}
+
+  /auth/logout/:
+    post:
+      tags: [Auth]
+      summary: Logout and blacklist tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: {type: string}
+                access_token: {type: string}
+      responses:
+        '200': {description: Logged out}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+  /courses/:
+    get:
+      tags: [Courses]
+      summary: List courses
+      parameters:
+        - in: query
+          name: page
+          schema: {type: integer}
+        - in: query
+          name: page_size
+          schema: {type: integer}
+      responses:
+        '200':
+          description: Paginated course list
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaginatedCourseList'}
+              examples:
+                page1:
+                  value:
+                    count: 2
+                    next: null
+                    previous: null
+                    results:
+                      - id: 1
+                        name: Introduction to Python
+                        description: Learn Python programming fundamentals
+                        primary_owner: { id: 10, email: teacher@example.com, first_name: Jane, last_name: Smith, role: teacher }
+                        teacher_count: 1
+                        student_count: 3
+                    page_info: { current_page: 1, total_pages: 1, page_size: 10 }
+    post:
+      tags: [Courses]
+      summary: Create a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, description]
+              properties:
+                name: {type: string}
+                description: {type: string}
+                teacher_ids:
+                  type: array
+                  items: {type: integer}
+                student_ids:
+                  type: array
+                  items: {type: integer}
+            examples:
+              minimal:
+                value: {name: C1, description: Intro}
+              with_members:
+                value:
+                  name: C2
+                  description: D
+                  teacher_ids: [2]
+                  student_ids: [3,4]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Course'}
+        '400': {$ref: '#/components/responses/ValidationError'}
+
+  /courses/{id}/:
+    get:
+      tags: [Courses]
+      summary: Retrieve a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/Course'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    patch:
+      tags: [Courses]
+      summary: Update a course (partial)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string}
+                description: {type: string}
+                primary_owner_id: {type: integer}
+                teacher_ids:
+                  type: array
+                  items: {type: integer}
+                student_ids:
+                  type: array
+                  items: {type: integer}
+      responses:
+        '200': {description: Updated, content: {application/json: {schema: {$ref: '#/components/schemas/Course'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Courses]
+      summary: Delete a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: integer}
+      responses:
+        '204': {description: No content}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/:
+    get:
+      tags: [Lectures]
+      summary: List lectures for course
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: query
+          name: page
+          schema: {type: integer}
+        - in: query
+          name: page_size
+          schema: {type: integer}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaginatedLectureList'}
+              examples:
+                page1:
+                  value:
+                    count: 1
+                    next: null
+                    previous: null
+                    results:
+                      - id: 5
+                        topic: Introduction to Python Programming
+                        presentation: /media/presentations/python_intro_slides.pdf
+                        created_at: 2024-01-15T10:30:00Z
+                        updated_at: 2024-01-15T10:30:00Z
+                    page_info: { current_page: 1, total_pages: 1, page_size: 10 }
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Lectures]
+      summary: Create lecture (multipart)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [topic, presentation]
+              properties:
+                topic: {type: string}
+                presentation: {type: string, format: binary}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/Lecture'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/:
+    patch:
+      tags: [Lectures]
+      summary: Patch lecture
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                topic: {type: string}
+                presentation: {type: string, format: binary}
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic: {type: string}
+      responses:
+        '200': {description: Updated, content: {application/json: {schema: {$ref: '#/components/schemas/Lecture'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Lectures]
+      summary: Delete lecture
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+      responses:
+        '204': {description: No content}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/:
+    get:
+      tags: [Homeworks]
+      summary: List homeworks for lecture
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: query
+          name: page
+          schema: {type: integer}
+        - in: query
+          name: page_size
+          schema: {type: integer}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaginatedHomeworkList'}
+              examples:
+                page1:
+                  value:
+                    count: 1
+                    next: null
+                    previous: null
+                    results:
+                      - id: 7
+                        lecture: { id: 5, topic: Introduction to Python Programming }
+                        title: Python Basics Assignment
+                        description: Complete the following Python exercises...
+                        due_date: 2025-12-31T23:59:00Z
+                        created_by: { id: 10, email: teacher@example.com, first_name: Jane, last_name: Smith, role: teacher }
+                        created_at: 2024-01-15T14:00:00Z
+                        updated_at: 2024-01-15T14:00:00Z
+                    page_info: { current_page: 1, total_pages: 1, page_size: 10 }
+    post:
+      tags: [Homeworks]
+      summary: Create homework (teacher)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description, due_date]
+              properties:
+                title: {type: string}
+                description: {type: string}
+                due_date: {type: string, format: date-time}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/Homework'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/:
+    patch:
+      tags: [Homeworks]
+      summary: Patch homework
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: {type: string}
+                description: {type: string}
+                due_date: {type: string, format: date-time}
+      responses:
+        '200': {description: Updated, content: {application/json: {schema: {$ref: '#/components/schemas/Homework'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Homeworks]
+      summary: Delete homework
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+      responses:
+        '204': {description: No content}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/:
+    get:
+      tags: [Submissions]
+      summary: List submissions
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: query
+          name: page
+          schema: {type: integer}
+        - in: query
+          name: page_size
+          schema: {type: integer}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaginatedSubmissionList'}
+              examples:
+                page1:
+                  value:
+                    count: 1
+                    next: null
+                    previous: null
+                    results:
+                      - id: 12
+                        homework: { id: 7, title: Python Basics Assignment }
+                        student: { id: 23, email: student@example.com, first_name: John, last_name: Doe, role: student }
+                        content: Here is my solution to the Python assignment...
+                        is_submitted: true
+                        submitted_at: 2024-01-18T15:30:00Z
+                        updated_at: 2024-01-18T15:30:00Z
+                    page_info: { current_page: 1, total_pages: 1, page_size: 10 }
+    post:
+      tags: [Submissions]
+      summary: Create submission (student)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: {type: string}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/HomeworkSubmission'}}}}
+        '400':
+          description: Not enrolled or validation error
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/:
+    patch:
+      tags: [Submissions]
+      summary: Patch submission (owner)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: {type: string}
+                is_submitted: {type: boolean}
+      responses:
+        '200': {description: Updated, content: {application/json: {schema: {$ref: '#/components/schemas/HomeworkSubmission'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Submissions]
+      summary: Delete submission (owner)
+      responses:
+        '204': {description: No content}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/:
+    get:
+      tags: [Grades]
+      summary: List grades for submission
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaginatedGradeList'}
+              examples:
+                page1:
+                  value:
+                    count: 1
+                    next: null
+                    previous: null
+                    results:
+                      - id: 30
+                        submission: { id: 12 }
+                        grade: 92.5
+                        comments: Great job!
+                        graded_by: { id: 10, email: teacher@example.com, first_name: Jane, last_name: Smith, role: teacher }
+                        graded_at: 2024-01-19T09:00:00Z
+                        updated_at: 2024-01-19T09:00:00Z
+                    page_info: { current_page: 1, total_pages: 1, page_size: 10 }
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Grades]
+      summary: Create grade (teacher)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grade: {type: number}
+                comments: {type: string}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/HomeworkGrade'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/{grade_id}/:
+    patch:
+      tags: [Grades]
+      summary: Patch grade (grading teacher)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grade: {type: number}
+                comments: {type: string}
+      responses:
+        '200': {description: Updated, content: {application/json: {schema: {$ref: '#/components/schemas/HomeworkGrade'}}}}
+        '400': {$ref: '#/components/responses/ValidationError'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Grades]
+      summary: Delete grade (grading teacher)
+      responses:
+        '204': {description: No content}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/{grade_id}/comments/:
+    get:
+      tags: [GradeComments]
+      summary: List comments for grade
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PaginatedGradeCommentList'}
+              examples:
+                page1:
+                  value:
+                    count: 1
+                    next: null
+                    previous: null
+                    results:
+                      - id: 40
+                        author: { id: 10, email: teacher@example.com, first_name: Jane, last_name: Smith, role: teacher }
+                        comment: Please check question 3 again.
+                        created_at: 2024-01-19T10:00:00Z
+                        updated_at: 2024-01-19T10:00:00Z
+                    page_info: { current_page: 1, total_pages: 1, page_size: 10 }
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [GradeComments]
+      summary: Create comment (teacher or submission owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: {type: string}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/GradeComment'}}}}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+
+  schemas:
+    Error:
+      type: object
+      description: Standard error envelope
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code (optional)
+          example: ERR_FORBIDDEN
+        message:
+          type: string
+          description: Human-readable error message
+          example: You don't have permission to perform this action
+        detail:
+          type: string
+          description: Framework-provided detail (optional)
+        details:
+          type: string
+          description: Additional context (optional)
+
+    User:
+      type: object
+      properties:
+        id: {type: integer}
+        email: {type: string}
+        first_name: {type: string}
+        last_name: {type: string}
+        role: {type: string, enum: [teacher, student]}
+
+    Course:
+      type: object
+      properties:
+        id: {type: integer}
+        name: {type: string}
+        description: {type: string}
+        primary_owner: {$ref: '#/components/schemas/User'}
+        teacher_count: {type: integer}
+        student_count: {type: integer}
+
+    PaginatedCourseList:
+      type: object
+      properties:
+        count: {type: integer}
+        next: {type: string, nullable: true}
+        previous: {type: string, nullable: true}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/Course'}
+        page_info:
+          type: object
+          properties:
+            current_page: {type: integer}
+            total_pages: {type: integer}
+            page_size: {type: integer}
+
+    Lecture:
+      type: object
+      properties:
+        id: {type: integer}
+        topic: {type: string}
+        presentation:
+          type: string
+          description: 'URL of the uploaded presentation file'
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+
+    PaginatedLectureList:
+      type: object
+      properties:
+        count: {type: integer}
+        next: {type: string, nullable: true}
+        previous: {type: string, nullable: true}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/Lecture'}
+        page_info: {$ref: '#/components/schemas/PageInfo'}
+
+    Homework:
+      type: object
+      properties:
+        id: {type: integer}
+        lecture:
+          type: object
+          properties:
+            id: {type: integer}
+            topic: {type: string}
+        title: {type: string}
+        description: {type: string}
+        due_date: {type: string, format: date-time}
+        created_by: {$ref: '#/components/schemas/User'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+
+    PaginatedHomeworkList:
+      type: object
+      properties:
+        count: {type: integer}
+        next: {type: string, nullable: true}
+        previous: {type: string, nullable: true}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/Homework'}
+        page_info: {$ref: '#/components/schemas/PageInfo'}
+
+    HomeworkSubmission:
+      type: object
+      properties:
+        id: {type: integer}
+        homework:
+          type: object
+          properties:
+            id: {type: integer}
+            title: {type: string}
+        student: {$ref: '#/components/schemas/User'}
+        content: {type: string}
+        is_submitted: {type: boolean}
+        submitted_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+
+    PaginatedSubmissionList:
+      type: object
+      properties:
+        count: {type: integer}
+        next: {type: string, nullable: true}
+        previous: {type: string, nullable: true}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/HomeworkSubmission'}
+        page_info: {$ref: '#/components/schemas/PageInfo'}
+
+    HomeworkGrade:
+      type: object
+      properties:
+        id: {type: integer}
+        submission:
+          type: object
+          properties:
+            id: {type: integer}
+        grade: {type: number, nullable: true}
+        comments: {type: string}
+        graded_by: {$ref: '#/components/schemas/User'}
+        graded_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+
+    PaginatedGradeList:
+      type: object
+      properties:
+        count: {type: integer}
+        next: {type: string, nullable: true}
+        previous: {type: string, nullable: true}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/HomeworkGrade'}
+        page_info: {$ref: '#/components/schemas/PageInfo'}
+
+    GradeComment:
+      type: object
+      properties:
+        id: {type: integer}
+        author: {$ref: '#/components/schemas/User'}
+        comment: {type: string}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+
+    PaginatedGradeCommentList:
+      type: object
+      properties:
+        count: {type: integer}
+        next: {type: string, nullable: true}
+        previous: {type: string, nullable: true}
+        results:
+          type: array
+          items: {$ref: '#/components/schemas/GradeComment'}
+        page_info: {$ref: '#/components/schemas/PageInfo'}
+
+    PageInfo:
+      type: object
+      properties:
+        current_page: {type: integer}
+        total_pages: {type: integer}
+        page_size: {type: integer}
+
