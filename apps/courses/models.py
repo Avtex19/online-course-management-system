@@ -95,7 +95,7 @@ class CourseStudent(models.Model):
 class Lecture(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     topic = models.CharField(max_length=255)
-    presentation = models.CharField(max_length=255)
+    presentation = models.FileField(upload_to='presentations/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
