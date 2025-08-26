@@ -123,9 +123,12 @@ class SubmissionManagementService(SubmissionService):
             .filter(homework_id=homework_id)
         )
         
-        # If user is a student, only show their own submissions
+        # If user is a student, only show their own submissions AND they must be enrolled
         if user.role == UserRole.STUDENT.value:
-            queryset = queryset.filter(student_id=user.id)
+            queryset = queryset.filter(
+                student_id=user.id,
+                homework__lecture__course__students=user  # Add enrollment check
+            )
         
         # If user is a teacher, show all submissions (they can see everyone's)
         # This is handled by the ownership guard for individual operations

@@ -124,14 +124,32 @@ class GradeManagementService(GradeService):
 
         course = submission.homework.lecture.course
 
-        is_owner = submission.student_id == user.id
+        # Check if user is a teacher (teachers can always access)
         is_teacher = (
             course.primary_owner_id == user.id or
             course.teachers.filter(id=user.id).exists()
         )
 
-        # Only the submission owner or a teacher may view grades of a submission
-        if not (is_owner or is_teacher):
+        if is_teacher:
+            # Teachers can always access grades
+            queryset = (
+                HomeworkGrade.objects
+                .select_related(
+                    f"{ModelFields.SUBMISSION.value}__{ModelFields.HOMEWORK.value}",
+                    f"{ModelFields.SUBMISSION.value}__{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}",
+                    f"{ModelFields.SUBMISSION.value}__{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}",
+                    ModelFields.GRADED_BY.value,
+                )
+                .filter(submission_id=submission_id)
+            )
+            return queryset
+
+        # For students, check both ownership AND current enrollment
+        is_owner = submission.student_id == user.id
+        is_enrolled = course.students.filter(id=user.id).exists()
+
+        # Only the submission owner who is still enrolled may view grades
+        if not (is_owner and is_enrolled):
             raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
 
         queryset = (
@@ -145,5 +163,4 @@ class GradeManagementService(GradeService):
             .filter(submission_id=submission_id)
         )
 
-        # If student, they are the owner (checked above), no further filter needed
         return queryset

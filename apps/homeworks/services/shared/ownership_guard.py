@@ -37,18 +37,24 @@ class SubmissionOwnershipGuardImpl(SubmissionOwnershipGuard):
         if not user or not user.is_authenticated:
             raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
 
-        if submission.student_id == user.id:
-            return
-
+        # Check if user is a teacher (teachers can always access)
         homework = submission.homework
+        course = homework.lecture.course
+        
         if homework.created_by_id == user.id:
             return
 
-        course = homework.lecture.course
         if course.primary_owner_id == user.id:
             return
 
         if course.teachers.filter(id=user.id).exists():
+            return
+
+        # For students, check both ownership AND current enrollment
+        if submission.student_id == user.id:
+            # Student owns the submission, but check if they're still enrolled
+            if not course.students.filter(id=user.id).exists():
+                raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
             return
 
         raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
