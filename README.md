@@ -932,7 +932,8 @@ uv run pytest --cov=apps --cov-report=term-missing
 - Tests use the default SQLite database and run migrations automatically.
 - If you use pip instead of uv, replace `uv run` with `python -m` (e.g., `python -m pytest`).
 
-  erDiagram
+```mermaid
+erDiagram
     USER ||--o{ COURSE : "owns (primary_owner)"
     USER }o--o{ COURSE : "teaches"
     USER }o--o{ COURSE : "enrolled in"
