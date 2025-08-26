@@ -47,6 +47,32 @@ A comprehensive, enterprise-grade course management platform built with Django a
 - **Service layer architecture** following SOLID principles
 - **Pagination support** for lecture lists
 
+### Homework Management
+- **Nested CRUD operations** for homework assignments within lectures
+- **Homework ownership validation** (homework creators, course owners, and assigned teachers)
+- **Title uniqueness** within each lecture
+- **Due date management** for assignments
+- **Comprehensive validation pipeline** with business rules
+- **Service layer architecture** following SOLID principles
+- **Pagination support** for homework lists
+
+### Homework Submission Management
+- **Nested CRUD operations** for submissions within homework assignments
+- **Submission ownership validation** (students can manage their own submissions, teachers can view all)
+- **One submission per student** per homework constraint
+- **Submission status tracking** (draft vs submitted for review)
+- **Student enrollment validation** (only enrolled students can submit)
+- **Comprehensive validation pipeline** with business rules
+- **Service layer architecture** following SOLID principles
+- **Pagination support** for submission lists
+
+### Grades & Feedback
+- **Grades** for each submission (one grade per submission)
+- **Teachers** can create/update/delete grades; students can view their own grades
+- **Strict privacy**: unenrolled students cannot access grades (403)
+- **Comments on grades** by teacher and the submission’s student
+- **Nested endpoints** under submissions
+
 ### Enterprise Architecture
 - **SOLID principles** implementation
 - **Service layer pattern** with dependency injection
@@ -408,6 +434,165 @@ Authorization: Bearer your-access-token
 }
 ```
 
+### Homework Endpoints
+
+#### List Homework for a Lecture (Paginated)
+```http
+GET /api/courses/{course_id}/lectures/{lecture_id}/homeworks/?page=1&page_size=10
+Authorization: Bearer your-access-token
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `page_size`: Items per page (default: 10, max: 100)
+
+**Response:**
+```json
+{
+  "count": 8,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "lecture": {
+        "id": 1,
+        "topic": "Introduction to Python Programming",
+        "presentation": "python_intro_slides.pdf",
+        "created_at": "2024-01-15T10:30:00Z",
+        "updated_at": "2024-01-15T10:30:00Z"
+      },
+      "title": "Python Basics Assignment",
+      "description": "Complete the following Python exercises...",
+      "due_date": "2024-01-20T23:59:00Z",
+      "created_by": {
+        "id": 1,
+        "email": "teacher@example.com",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "role": "teacher"
+      },
+      "created_at": "2024-01-15T14:00:00Z",
+      "updated_at": "2024-01-15T14:00:00Z"
+    }
+  ],
+  "page_info": {
+    "current_page": 1,
+    "total_pages": 1,
+    "page_size": 10
+  }
+}
+```
+
+#### Create Homework Assignment
+```http
+POST /api/courses/{course_id}/lectures/{lecture_id}/homeworks/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "title": "Advanced Python Concepts",
+  "description": "Implement the following advanced Python features...",
+  "due_date": "2024-01-25T23:59:00Z"
+}
+```
+
+#### Update Homework Assignment
+```http
+PUT /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "title": "Updated Python Assignment",
+  "description": "Updated assignment description...",
+  "due_date": "2024-01-30T23:59:00Z"
+}
+```
+
+#### Delete Homework Assignment
+```http
+DELETE /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/
+Authorization: Bearer your-access-token
+```
+
+### Homework Submission Endpoints
+
+#### List Submissions for a Homework (Paginated)
+```http
+GET /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/?page=1&page_size=10
+Authorization: Bearer your-access-token
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `page_size`: Items per page (default: 10, max: 100)
+
+**Response:**
+```json
+{
+  "count": 5,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "homework": {
+        "id": 1,
+        "title": "Python Basics Assignment",
+        "description": "Complete the following Python exercises...",
+        "due_date": "2024-01-20T23:59:00Z"
+      },
+      "student": {
+        "id": 2,
+        "email": "student@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "role": "student"
+      },
+      "content": "Here is my solution to the Python assignment...",
+      "submitted_at": "2024-01-18T15:30:00Z",
+      "updated_at": "2024-01-18T15:30:00Z",
+      "is_submitted": true
+    }
+  ],
+  "page_info": {
+    "current_page": 1,
+    "total_pages": 1,
+    "page_size": 10
+  }
+}
+```
+
+#### Create Homework Submission
+```http
+POST /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "content": "Here is my solution to the assignment..."
+}
+```
+
+#### Update Homework Submission
+```http
+PATCH /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "content": "Updated solution content...",
+  "is_submitted": true
+}
+```
+
+#### Delete Homework Submission
+```http
+DELETE /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/
+Authorization: Bearer your-access-token
+```
+
 #### Create Lecture
 ```http
 POST /api/courses/{course_id}/lectures/
@@ -446,6 +631,57 @@ Content-Type: application/json
 
 {
   "topic": "Updated Topic Name"
+}
+```
+
+### Grade Endpoints
+
+#### List Grades for a Submission
+```http
+GET /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/
+Authorization: Bearer your-access-token
+```
+
+#### Create Grade (Teacher)
+```http
+POST /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "grade": 92.5,
+  "comments": "Great job!"
+}
+```
+
+#### Update Grade (Teacher who graded)
+```http
+PATCH /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/{grade_id}/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "grade": 95.0,
+  "comments": "Adjusted after review"
+}
+```
+
+### Grade Comment Endpoints
+
+#### List Comments on a Grade
+```http
+GET /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/{grade_id}/comments/
+Authorization: Bearer your-access-token
+```
+
+#### Add Comment on a Grade (Teacher or submission owner)
+```http
+POST /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/{grade_id}/comments/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "comment": "Please check question 3 again."
 }
 ```
 
@@ -582,6 +818,30 @@ online-course-management-system/
 │   │   │       ├── uniqueness.py  # Uniqueness validation
 │   │   │       ├── business_rules.py # Business rule validation
 │   │   │       └── interfaces.py  # Validation interfaces
+│   │   └── migrations/            # Database migrations
+│   ├── homeworks/                 # Homework management app
+│   │   ├── models.py              # Homework, HomeworkSubmission models
+│   │   ├── views.py               # HomeworkViewSet, HomeworkSubmissionViewSet (CRUD operations)
+│   │   ├── serializers.py         # API serializers
+│   │   ├── pagination.py          # Custom pagination classes
+│   │   ├── admin.py               # Django admin configuration
+│   │   ├── urls.py                # URL routing
+│   │   ├── services/              # Business logic layer
+│   │   │   ├── __init__.py
+│   │   │   ├── protocols.py       # Service interfaces
+│   │   │   ├── homework/          # Homework-specific services
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── dtos.py        # Homework DTOs
+│   │   │   │   ├── validation.py  # Homework validation
+│   │   │   │   └── services.py    # Homework business logic
+│   │   │   ├── submission/        # Submission-specific services
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── dtos.py        # Submission DTOs
+│   │   │   │   ├── validation.py  # Submission validation
+│   │   │   │   └── services.py    # Submission business logic
+│   │   │   └── shared/            # Shared services
+│   │   │       ├── __init__.py
+│   │   │       └── ownership_guard.py  # Homework ownership validation
 │   │   └── migrations/            # Database migrations
 │   └── users/                     # User management app
 │       ├── models.py              # Custom User model

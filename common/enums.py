@@ -38,6 +38,17 @@ class ErrorMessages(str, Enum):
     ONLY_PRIMARY_OWNER_ALLOWED = "Only the primary owner can perform this action"
     COURSE_ACCESS_DENIED = "You don't have permission to manage this course"
     LECTURE_TOPIC_ALREADY_EXISTS = "A lecture with topic '{topic}' already exists in this course"
+    HOMEWORK_TITLE_ALREADY_EXISTS = "A homework with title '{title}' already exists for this lecture"
+    HOMEWORK_DOESNT_EXIST = "Homework does not exist"
+    SUBMISSION_ALREADY_EXISTS = "You have already submitted homework for this assignment"
+    SUBMISSION_DOESNT_EXIST = "Homework submission does not exist"
+    STUDENT_NOT_ENROLLED = "You must be enrolled in this course to submit homework"
+    GRADE_ALREADY_EXISTS = "Grade already exists for this submission"
+    GRADE_DOESNT_EXIST = "Grade does not exist"
+    GRADE_OUT_OF_RANGE = "Grade must be between 0 and 100"
+    ONLY_TEACHERS_CAN_GRADE = "Only teachers can assign grades"
+    ONLY_GRADED_BY_TEACHER_CAN_UPDATE = "Only the teacher who graded this can update it"
+    YOU_ARE_NOT_ENROLLED_IN_THIS_COURSE = "You are not enrolled in this course"
 
 
 class SuccessMessages(str, Enum):
@@ -92,6 +103,13 @@ class RelatedNames(str, Enum):
     OWNED_COURSES = "owned_courses"
     TEACHING_COURSES = "teaching_courses"
     ENROLLED_COURSES = "enrolled_courses"
+    LECTURE_HOMEWORKS = "homeworks"
+    USER_CREATED_HOMEWORKS = "created_homeworks"
+    HOMEWORK_SUBMISSIONS = "submissions"
+    USER_HOMEWORK_SUBMISSIONS = "homework_submissions"
+    USER_GRADES_GIVEN = "grades_given"
+    GRADE_COMMENTS = "grade_comments"
+    USER_GRADE_COMMENTS = "grade_comments"
 
 
 class ModelVerboseNames(str, Enum):
@@ -101,6 +119,12 @@ class ModelVerboseNames(str, Enum):
     COURSE_STUDENTS = "Course students"
     USER = "User"
     USERS = "Users"
+
+
+class ConstraintNames(str, Enum):
+    UNIQUE_HOMEWORK_TITLE_PER_LECTURE = "unique_homework_title_per_lecture"
+    GRADE_RANGE_CHECK = "grade_range_check"
+    UNIQUE_SUBMISSION_PER_STUDENT = 'unique_submission_per_student_per_homework'
 
 
 class ModelFields(str, Enum):
@@ -119,6 +143,31 @@ class ModelFields(str, Enum):
     TOPIC = 'topic'
     PRESENTATION = 'presentation'
     COURSE_PK = "course_pk"
+    
+    # Lecture fields
+    LECTURE = "lecture"
+    
+    # Homework fields
+    HOMEWORK = "homework"
+    TITLE = "title"
+    DUE_DATE = "due_date"
+    CREATED_BY = "created_by"
+    
+    # Homework submission fields
+    SUBMISSION = "submission"
+    CONTENT = "content"
+    SUBMITTED_AT = "submitted_at"
+    IS_SUBMITTED = "is_submitted"
+    STUDENT = "student"
+    
+    # Homework grade fields
+    GRADE = "grade"
+    COMMENTS = "comments"
+    GRADED_BY = "graded_by"
+    GRADED_AT = "graded_at"
+    # Grade comments
+    AUTHOR = "author"
+    COMMENT = "comment"
 
 
 class SerializerFields(str, Enum):
@@ -148,6 +197,7 @@ class HttpStatus(Enum):
 
 class RequestData(str, Enum):
     DATA = "data"
+    REQUEST = "request"
 
 
 class ViewActions(str, Enum):
@@ -155,6 +205,8 @@ class ViewActions(str, Enum):
     UPDATE = "update"
     PARTIAL_UPDATE = "partial_update"
     LIST = "list"
+    LIST_COMMENTS = "list_comments"
+    CREATE_COMMENT = "create_comment"
     RETRIEVE = "retrieve"
     DESTROY = "destroy"
     PARTIAL = 'partial'
@@ -164,11 +216,24 @@ class URLPatterns(str, Enum):
     """URL patterns for routing"""
     COURSES = "courses"
     LECTURES = "lectures"
+    HOMEWORKS = "homeworks"
+    HOMEWORK = "homework"
+    SUBMISSIONS = "submissions"
     COURSE_PK = "course_pk"
+    LECTURE_PK = "lecture_pk"
     PK = "pk"
     COURSE = 'course'
     LECTURE_LIST = "lecture_list"
     LECTURE_DETAIL = "lecture_detail"
+    HOMEWORK_LIST = "homework_list"
+    HOMEWORK_DETAIL = "homework_detail"
+    SUBMISSION_LIST = "submission_list"
+    SUBMISSION_DETAIL = "submission_detail"
+    SUBMISSION = "submission"
+    GRADE_LIST = "grade_list"
+    GRADE_DETAIL = "grade_detail"
+    GRADES = "grades"
+    GRADE_COMMENTS = "grade_comments"
 
 
 class HTTPMethods(str, Enum):
@@ -192,5 +257,7 @@ class PaginationFields(str, Enum):
     TOTAL_PAGES = "total_pages"
     PAGE_INFO = "page_info"
 
-
+class SerializerKwargs(str, Enum):
+    WRITE_ONLY = "write_only"
+    REQUIRED = "required"
 
