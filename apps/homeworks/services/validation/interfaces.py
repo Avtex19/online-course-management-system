@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Optional
 
 from apps.homeworks.services.homework.dtos import HomeworkCreationRequest, HomeworkUpdateRequest, HomeworkValidationResult
 from apps.homeworks.services.submission.dtos import SubmissionCreationRequest, SubmissionUpdateRequest, SubmissionValidationResult
