@@ -218,23 +218,12 @@ SIMPLE_JWT = {
 
 ## API Documentation
 
-By default, the API docs are not exposed over HTTP. The OpenAPI spec lives at `docs/openapi.yaml`.
+Swagger UI is available by default when the server is running:
 
-Ways to view the docs:
+- Swagger UI: `http://localhost:8000/api/docs/`
+- OpenAPI JSON: `http://localhost:8000/api/schema/`
 
-- Open the YAML directly in your editor or import it into Swagger Editor (`https://editor.swagger.io`).
-- Optional (enable locally): add these routes to `config/urls.py` to serve docs via drf-spectacular:
-  ```python
-  from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
-  urlpatterns += [
-      path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-      path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-  ]
-  ```
-  Then open:
-  - Swagger UI: `http://localhost:8000/api/docs/`
-  - JSON schema: `http://localhost:8000/api/schema/`
+The source OpenAPI spec used for reference examples also lives at `docs/openapi.yaml`.
 
 ### Base URL
 ```
@@ -702,36 +691,6 @@ Content-Type: application/json
 #### Delete Lecture
 ```http
 DELETE /api/courses/{course_id}/lectures/{lecture_id}/
-Authorization: Bearer your-access-token
-```
-PUT /api/courses/{id}/
-Authorization: Bearer your-access-token
-Content-Type: application/json
-
-{
-  "name": "Advanced Python",
-  "description": "Advanced Python concepts and frameworks",
-  "primary_owner_id": 1,    // Optional: Change owner
-  "teacher_ids": [2, 3, 4], // Optional: Update teachers
-  "student_ids": [5, 6, 7]  // Optional: Update students
-}
-```
-
-#### Update Course (Partial)
-```http
-PATCH /api/courses/{id}/
-Authorization: Bearer your-access-token
-Content-Type: application/json
-
-{
-  "name": "Updated Course Name"
-  // Only provided fields will be updated
-}
-```
-
-#### Delete Course
-```http
-DELETE /api/courses/{id}/
 Authorization: Bearer your-access-token
 ```
 
