@@ -23,6 +23,14 @@ A comprehensive, enterprise-grade course management platform built with Django a
 - **Role-based access control** (Teachers and Students)
 - **Secure password validation** with Django's built-in validators
 
+### Security Features
+- **Enrollment-based access control** - Students must be currently enrolled to interact with course materials
+- **Removed student protection** - Students removed from courses lose interactive access but retain read-only access to completed work
+- **Comprehensive permission checks** - All operations validate current enrollment status
+- **Token blacklisting** - Secure logout with token invalidation
+- **Role-based authorization** - Strict separation between teacher and student permissions
+- **Ownership validation** - Users can only access resources they own or are authorized to view
+
 ### User Management
 - **Custom user model** with email-based authentication
 - **Role assignment** (Teacher/Student)
@@ -60,7 +68,8 @@ A comprehensive, enterprise-grade course management platform built with Django a
 - **Submission ownership validation** (students can manage their own submissions, teachers can view all)
 - **One submission per student** per homework constraint
 - **Submission status tracking** (draft vs submitted for review)
-- **Student enrollment validation** (only enrolled students can submit)
+- **Student enrollment validation** (only enrolled students can submit, update, or delete)
+- **Removed student protection** - Students removed from courses lose interactive access to submissions
 - **Comprehensive validation pipeline** with business rules
 - **Service layer architecture** following SOLID principles
 - **Pagination support** for submission lists
@@ -68,7 +77,8 @@ A comprehensive, enterprise-grade course management platform built with Django a
 ### Grades & Feedback
 - **Grades** for each submission (one grade per submission)
 - **Teachers** can create/update/delete grades; students can view their own grades
-- **Strict privacy**: unenrolled students cannot access grades (403)
+- **Enrollment-based access** - Only currently enrolled students can access grades and add comments
+- **Removed student protection** - Students removed from courses lose access to grades and comments
 - **Comments on grades** by teacher and the submission’s student
 - **Nested endpoints** under submissions
 
