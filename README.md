@@ -219,6 +219,11 @@ SIMPLE_JWT = {
 
 ## API Documentation
 
+Access interactive docs and the static OpenAPI YAML served by the app.
+
+- Swagger UI: `http://localhost:8000/api/docs/`
+- OpenAPI YAML: `http://localhost:8000/api/schema.yaml`
+
 ### Base URL
 ```
 http://localhost:8000/api/
@@ -741,10 +746,10 @@ Authorization: Bearer your-access-token
 #### Error Response
 ```json
 {
-  "errors": [
-    "Course name cannot be empty",
-    "User must be teacher"
-  ]
+  "code": "ERR_FORBIDDEN",
+  "message": "You don't have permission to perform this action",
+  "detail": "Optional short detail",
+  "details": "Optional long detail"
 }
 ```
 
