@@ -60,7 +60,12 @@ def test_create_course_and_list_counts(api_client, teacher, student):
     # Create course
     create_resp = auth(api_client, teacher).post(
         "/api/courses/",
-        {"name": "C1", "description": "Desc"},
+        {
+            "name": "C1",
+            "description": "Desc",
+            "teacher_ids": [teacher.id],
+            "student_ids": [student.id],
+        },
         format="json",
     )
     assert create_resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
