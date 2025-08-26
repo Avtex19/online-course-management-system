@@ -1,5 +1,4 @@
 # Online Course Management System
-
 A comprehensive, enterprise-grade course management platform built with Django and Django REST Framework, following SOLID principles and clean architecture patterns.
 
 ## Table of Contents
@@ -13,8 +12,8 @@ A comprehensive, enterprise-grade course management platform built with Django a
 - [User Roles & Permissions](#user-roles--permissions)
 - [Project Structure](#project-structure)
 - [Development Guidelines](#development-guidelines)
-- [Testing](#testing)
 - [Contributing](#contributing)
+- [Testing](#testing)
 
 ## Features
 
@@ -926,4 +925,51 @@ class CourseCreationService:
 - Implement custom QuerySets with `annotate()` for aggregations
 - Use database constraints for data integrity
 
+
+
+## Testing
+
+### Quick start
+
+```bash
+uv run pytest
+```
+
+- Uses `DJANGO_SETTINGS_MODULE=config.settings` from `pytest.ini`.
+- Discovers tests matching `test_*.py` or `*_test.py`.
+- Default options include `-q` (quiet) from `pytest.ini`.
+
+### Run selected tests
+
+- Single file:
+```bash
+uv run pytest apps/courses/test_courses_lectures.py
+```
+
+- Single test function:
+```bash
+uv run pytest apps/homeworks/test_homeworks.py::test_create_homework
+```
+
+- Filter by keyword:
+```bash
+uv run pytest -k "lecture and create"
+```
+
+### With coverage (optional)
+
+Install coverage plugin:
+```bash
+uv add pytest-cov
+```
+
+Run with coverage report:
+```bash
+uv run pytest --cov=apps --cov-report=term-missing
+```
+
+### Notes
+
+- Tests use the default SQLite database and run migrations automatically.
+- If you use pip instead of uv, replace `uv run` with `python -m` (e.g., `python -m pytest`).
 
