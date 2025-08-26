@@ -932,3 +932,71 @@ uv run pytest --cov=apps --cov-report=term-missing
 - Tests use the default SQLite database and run migrations automatically.
 - If you use pip instead of uv, replace `uv run` with `python -m` (e.g., `python -m pytest`).
 
+  erDiagram
+    USER ||--o{ COURSE : "owns (primary_owner)"
+    USER }o--o{ COURSE : "teaches"
+    USER }o--o{ COURSE : "enrolled in"
+    COURSE ||--o{ LECTURE : "has"
+    LECTURE ||--o{ HOMEWORK : "has"
+    HOMEWORK ||--o{ HOMEWORKSUBMISSION : "submitted by"
+    USER ||--o{ HOMEWORK : "creates"
+    USER ||--o{ HOMEWORKSUBMISSION : "submits"
+    HOMEWORKSUBMISSION ||--|| HOMEWORKGRADE : "graded as"
+    USER ||--o{ HOMEWORKGRADE : "grades"
+    HOMEWORKGRADE ||--o{ GRADECOMMENT : "has comments"
+    USER ||--o{ GRADECOMMENT : "writes"
+    
+    USER {
+        int id
+        string email
+        string first_name
+        string last_name
+        string role
+    }
+
+    COURSE {
+        int id
+        string name
+        text description
+        int primary_owner_id
+    }
+
+    LECTURE {
+        int id
+        string topic
+        file presentation
+    }
+
+    HOMEWORK {
+        int id
+        string title
+        text description
+        datetime due_date
+        int lecture_id
+        int created_by_id
+    }
+
+    HOMEWORKSUBMISSION {
+        int id
+        text content
+        bool is_submitted
+        int homework_id
+        int student_id
+    }
+
+    HOMEWORKGRADE {
+        int id
+        decimal grade
+        text comments
+        int submission_id
+        int graded_by_id
+    }
+
+    GRADECOMMENT {
+        int id
+        text comment
+        int grade_id
+        int author_id
+    }
+
+
