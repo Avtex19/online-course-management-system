@@ -108,7 +108,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LectureViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing lectures within courses with full CRUD operations.
-    
+
     - GET /courses/{course_pk}/lectures/ - List all lectures for a course (paginated)
     - POST /courses/{course_pk}/lectures/ - Create new lecture in course
     - GET /courses/{course_pk}/lectures/{id}/ - Retrieve specific lecture

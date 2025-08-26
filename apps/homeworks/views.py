@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
@@ -26,13 +25,13 @@ from apps.homeworks.services.grade.comment_services import GradeCommentManagemen
 from apps.homeworks.services.protocols import HomeworkService, SubmissionService, GradeService, GradeCommentService
 from apps.homeworks.pagination import CustomPageNumberPagination
 from apps.users.permissions import DenyBlacklistedToken
-from common.enums import ViewActions, ModelFields, ErrorMessages, URLPatterns
+from common.enums import ViewActions, ErrorMessages, URLPatterns
 
 
 class HomeworkViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing homework assignments within lectures with full CRUD operations.
-    
+
     - GET /courses/{course_pk}/lectures/{lecture_pk}/homeworks/ - List all homeworks for a lecture (paginated)
     - POST /courses/{course_pk}/lectures/{lecture_pk}/homeworks/ - Create new homework in lecture
     - GET /courses/{course_pk}/lectures/{lecture_pk}/homeworks/{id}/ - Retrieve specific homework
@@ -96,7 +95,7 @@ class HomeworkViewSet(viewsets.ModelViewSet):
 class HomeworkSubmissionViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing homework submissions with full CRUD operations.
-    
+
     - GET /courses/{course_pk}/lectures/{lecture_pk}/homeworks/{homework_pk}/submissions/ - List all submissions for a homework (paginated)
     - POST /courses/{course_pk}/lectures/{lecture_pk}/homeworks/{homework_pk}/submissions/ - Create new submission for homework
     - GET /courses/{course_pk}/lectures/{lecture_pk}/homeworks/{homework_pk}/submissions/{id}/ - Retrieve specific submission
@@ -161,7 +160,7 @@ class HomeworkSubmissionViewSet(viewsets.ModelViewSet):
 class HomeworkGradeViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing homework grades with full CRUD operations.
-    
+
     - GET /courses/{course_pk}/lectures/{lecture_pk}/homeworks/{homework_pk}/submissions/{submission_pk}/grades/ -
     List all grades for a submission (paginated) - POST /courses/{course_pk}/lectures/{lecture_pk}/homeworks/{
     homework_pk}/submissions/{submission_pk}/grades/ - Create new grade for submission - GET /courses/{
