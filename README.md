@@ -219,10 +219,23 @@ SIMPLE_JWT = {
 
 ## API Documentation
 
-Access interactive docs and the static OpenAPI YAML served by the app.
+By default, the API docs are not exposed over HTTP. The OpenAPI spec lives at `docs/openapi.yaml`.
 
-- Swagger UI: `http://localhost:8000/api/docs/`
-- OpenAPI YAML: `http://localhost:8000/api/schema.yaml`
+Ways to view the docs:
+
+- Open the YAML directly in your editor or import it into Swagger Editor (`https://editor.swagger.io`).
+- Optional (enable locally): add these routes to `config/urls.py` to serve docs via drf-spectacular:
+  ```python
+  from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
+  urlpatterns += [
+      path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+      path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+  ]
+  ```
+  Then open:
+  - Swagger UI: `http://localhost:8000/api/docs/`
+  - JSON schema: `http://localhost:8000/api/schema/`
 
 ### Base URL
 ```
