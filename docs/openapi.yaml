@@ -518,6 +518,19 @@ paths:
     post:
       tags: [Submissions]
       summary: Create submission (student)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
       requestBody:
         required: true
         content:
@@ -541,6 +554,23 @@ paths:
     patch:
       tags: [Submissions]
       summary: Patch submission (owner)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
       requestBody:
         content:
           application/json:
@@ -557,6 +587,23 @@ paths:
     delete:
       tags: [Submissions]
       summary: Delete submission (owner)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
       responses:
         '204': {description: No content}
         '403': {$ref: '#/components/responses/Forbidden'}
@@ -566,6 +613,23 @@ paths:
     get:
       tags: [Grades]
       summary: List grades for submission
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
       responses:
         '200':
           description: OK
@@ -592,6 +656,23 @@ paths:
     post:
       tags: [Grades]
       summary: Create grade (teacher)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
       requestBody:
         required: true
         content:
@@ -611,6 +692,27 @@ paths:
     patch:
       tags: [Grades]
       summary: Patch grade (grading teacher)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: grade_id
+          required: true
+          schema: {type: integer}
       requestBody:
         content:
           application/json:
@@ -627,6 +729,27 @@ paths:
     delete:
       tags: [Grades]
       summary: Delete grade (grading teacher)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: grade_id
+          required: true
+          schema: {type: integer}
       responses:
         '204': {description: No content}
         '403': {$ref: '#/components/responses/Forbidden'}
@@ -636,6 +759,27 @@ paths:
     get:
       tags: [GradeComments]
       summary: List comments for grade
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: grade_id
+          required: true
+          schema: {type: integer}
       responses:
         '200':
           description: OK
@@ -660,6 +804,27 @@ paths:
     post:
       tags: [GradeComments]
       summary: Create comment (teacher or submission owner)
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: grade_id
+          required: true
+          schema: {type: integer}
       requestBody:
         required: true
         content:
