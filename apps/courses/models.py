@@ -1,6 +1,14 @@
 from django.db import models
 from django.conf import settings
-from common.enums import UserRole, UserFields, RelatedNames, ModelVerboseNames, ModelFields
+from common.enums import (
+    UserRole,
+    UserFields,
+    RelatedNames,
+    ModelVerboseNames,
+    ModelFields,
+    ConstraintNames,
+    UploadPaths,
+)
 from .managers import CourseQuerySet
 
 
@@ -15,13 +23,13 @@ class Course(models.Model):
     )
     teachers = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        through='CourseTeacher',
+        through=ModelFields.COURSE_TEACHER.value,
         related_name=RelatedNames.TEACHING_COURSES.value,
         blank=True,
     )
     students = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        through='CourseStudent',
+        through=ModelFields.COURSE_STUDENT.value,
         related_name=RelatedNames.ENROLLED_COURSES.value,
         blank=True,
     )
@@ -34,7 +42,7 @@ class Course(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=[ModelFields.NAME.value, ModelFields.PRIMARY_OWNER.value],
-                name='unique_course_per_owner'
+                name=ConstraintNames.UNIQUE_COURSE_PER_OWNER.value,
             )
         ]
 
@@ -55,7 +63,7 @@ class CourseTeacher(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=[ModelFields.COURSE.value, ModelFields.USER.value],
-                name='unique_course_teacher'
+                name=ConstraintNames.UNIQUE_COURSE_TEACHER.value,
             )
         ]
         verbose_name = ModelVerboseNames.COURSE_TEACHER.value
@@ -80,7 +88,7 @@ class CourseStudent(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=[ModelFields.COURSE.value, ModelFields.USER.value],
-                name='unique_course_student'
+                name=ConstraintNames.UNIQUE_COURSE_STUDENT.value,
             )
         ]
         verbose_name = ModelVerboseNames.COURSE_STUDENT.value
@@ -95,13 +103,16 @@ class CourseStudent(models.Model):
 class Lecture(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     topic = models.CharField(max_length=255)
-    presentation = models.FileField(upload_to='presentations/')
+    presentation = models.FileField(upload_to=UploadPaths.PRESENTATIONS.value)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=[ModelFields.COURSE.value, ModelFields.TOPIC.value], name='unique_topic_per_course')
+            models.UniqueConstraint(
+                fields=[ModelFields.COURSE.value, ModelFields.TOPIC.value],
+                name=ConstraintNames.UNIQUE_TOPIC_PER_COURSE.value,
+            )
         ]
 
 
