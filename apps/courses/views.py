@@ -136,7 +136,10 @@ class LectureViewSet(viewsets.ModelViewSet):
         """Filter lectures by course from URL parameter"""
         return (
             Lecture.objects
-            .select_related(ModelFields.COURSE.value)
+            .select_related(
+                ModelFields.COURSE.value,
+                f"{ModelFields.COURSE.value}__{ModelFields.PRIMARY_OWNER.value}"
+            )
             .filter(course_id=self.kwargs[ModelFields.COURSE_PK.value])
         )
 

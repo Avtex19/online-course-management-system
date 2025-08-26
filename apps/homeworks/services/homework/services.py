@@ -117,9 +117,13 @@ class HomeworkManagementService(HomeworkService):
     def get_homeworks_for_lecture(self, *, lecture_id):
         """Get homeworks for a specific lecture"""
         from apps.homeworks.models import Homework
-        
         return (
             Homework.objects
-            .select_related(ModelFields.LECTURE.value, ModelFields.CREATED_BY.value)
+            .select_related(
+                ModelFields.LECTURE.value,
+                f"{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}",
+                f"{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}__{ModelFields.PRIMARY_OWNER.value}",
+                ModelFields.CREATED_BY.value,
+            )
             .filter(lecture_id=lecture_id)
         )

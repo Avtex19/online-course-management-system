@@ -113,7 +113,13 @@ class SubmissionManagementService(SubmissionService):
         
         queryset = (
             HomeworkSubmission.objects
-            .select_related(ModelFields.HOMEWORK.value, ModelFields.STUDENT.value)
+            .select_related(
+                ModelFields.HOMEWORK.value,
+                f"{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}",
+                f"{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}",
+                f"{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}__{ModelFields.PRIMARY_OWNER.value}",
+                ModelFields.STUDENT.value,
+            )
             .filter(homework_id=homework_id)
         )
         

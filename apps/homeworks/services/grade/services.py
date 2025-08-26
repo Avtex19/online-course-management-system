@@ -2,14 +2,14 @@ from dataclasses import dataclass, field
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
-from apps.homeworks.models import HomeworkGrade, HomeworkSubmission
 from apps.homeworks.services.grade.dtos import GradeCreationRequest, GradeUpdateRequest
 from apps.homeworks.services.grade.validation import GradeCreationValidator, GradeUpdateValidator
 from apps.homeworks.services.validation.interfaces import GradeCreationValidatorInterface, GradeUpdateValidatorInterface
 from apps.homeworks.services.shared.ownership_guard import GradeOwnershipGuardImpl
 from apps.homeworks.services.protocols import GradeOwnershipGuard, GradeService
 from common.enums import ModelFields, UserRole, ErrorMessages
-
+from apps.homeworks.models import HomeworkGrade, HomeworkSubmission
+from rest_framework.exceptions import PermissionDenied
 
 @dataclass
 class GradeCreationService:
@@ -19,10 +19,11 @@ class GradeCreationService:
 
     def create_grade(self, request: GradeCreationRequest, user) -> HomeworkGrade:
         """Create a new grade with full validation"""
-        # only teachers can create grades
+        # Validate role (only teachers can create grades)
         if user.role != UserRole.TEACHER.value:
             raise ValidationError(ErrorMessages.ONLY_TEACHERS_CAN_GRADE.value)
 
+        # Validate request
         validation_result = self.validation_service.validate_grade_creation(request, user.id)
 
         if not validation_result.is_valid:
@@ -50,9 +51,10 @@ class GradeUpdateService:
 
     def update_grade(self, instance: HomeworkGrade, request: GradeUpdateRequest, user) -> HomeworkGrade:
         """Update an existing grade with full validation"""
-        # only the teacher who graded can update
+        # Validate ownership (only the teacher who graded can update)
         self.ownership_guard.ensure_owner(instance, user)
 
+        # Validate request
         validation_result = self.validation_service.validate_grade_update(request, instance)
 
         if not validation_result.is_valid:
@@ -104,12 +106,12 @@ class GradeManagementService(GradeService):
 
     def get_grades_for_submission(self, *, submission_id, user):
         """Get grades for a specific submission"""
-        from apps.homeworks.models import HomeworkGrade, HomeworkSubmission
-        from rest_framework.exceptions import PermissionDenied
+        
 
         if not user or not user.is_authenticated:
             raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
 
+        # Load submission and course to authorize access
         try:
             submission = HomeworkSubmission.objects.select_related(
                 ModelFields.HOMEWORK.value,
@@ -117,6 +119,7 @@ class GradeManagementService(GradeService):
                 f"{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}",
             ).get(id=submission_id)
         except HomeworkSubmission.DoesNotExist:
+            # Mirror list behavior for nonexistent submission
             raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
 
         course = submission.homework.lecture.course
@@ -127,13 +130,20 @@ class GradeManagementService(GradeService):
             course.teachers.filter(id=user.id).exists()
         )
 
+        # Only the submission owner or a teacher may view grades of a submission
         if not (is_owner or is_teacher):
             raise PermissionDenied(ErrorMessages.COURSE_ACCESS_DENIED.value)
 
         queryset = (
             HomeworkGrade.objects
-            .select_related(ModelFields.SUBMISSION.value, ModelFields.GRADED_BY.value)
+            .select_related(
+                f"{ModelFields.SUBMISSION.value}__{ModelFields.HOMEWORK.value}",
+                f"{ModelFields.SUBMISSION.value}__{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}",
+                f"{ModelFields.SUBMISSION.value}__{ModelFields.HOMEWORK.value}__{ModelFields.LECTURE.value}__{ModelFields.COURSE.value}",
+                ModelFields.GRADED_BY.value,
+            )
             .filter(submission_id=submission_id)
         )
 
+        # If student, they are the owner (checked above), no further filter needed
         return queryset
