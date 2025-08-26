@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'apps.users',
@@ -183,3 +184,33 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+# DRF Spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Online Course Management System API',
+    'DESCRIPTION': '''
+Detailed REST API for Courses, Lectures (with file uploads), Homeworks, Submissions,
+Grades, and Grade Comments.
+
+Authentication: JWT Bearer tokens
+Authorization: Role-based (teacher, student) and ownership rules
+    '''.strip(),
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'CONTACT': {
+        'name': 'API Support',
+        'email': 'support@ocms.local',
+    },
+    'LICENSE': {
+        'name': 'MIT',
+        'url': 'https://opensource.org/licenses/MIT',
+    },
+    'SERVERS': [
+        {
+            'url': 'http://localhost:8000/api',
+            'description': 'Local development'
+        }
+    ]
+}
