@@ -11,4 +11,6 @@ dependencies = [
     "drf-nested-routers>=0.94.2",
     "drf-spectacular>=0.28.0",
     "psycopg2-binary>=2.9.10",
+    "pytest>=8.4.1",
+    "pytest-django>=4.11.1",
 ]
