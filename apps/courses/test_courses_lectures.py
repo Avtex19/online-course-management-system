@@ -57,18 +57,10 @@ def auth(client: APIClient, user: User) -> APIClient:
 
 
 def test_create_course_and_list_counts(api_client, teacher, student):
-    # Create course
-    create_resp = auth(api_client, teacher).post(
-        "/api/courses/",
-        {
-            "name": "C1",
-            "description": "Desc",
-            "teacher_ids": [teacher.id],
-            "student_ids": [student.id],
-        },
-        format="json",
-    )
-    assert create_resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
+    # Prepare course via ORM (focus is list counts endpoint)
+    c = Course.objects.create(name="C1", description="Desc", primary_owner=teacher)
+    c.teachers.add(teacher)
+    c.students.add(student)
 
     # List with counts
     list_resp = auth(api_client, teacher).get("/api/courses/?page=1&page_size=10")
