@@ -168,4 +168,44 @@ def test_unenrolled_student_cannot_create_submission(api_client, unenrolled_stud
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
     assert ErrorMessages.STUDENT_NOT_ENROLLED.value in str(resp.data)
 
+
+# Lecture PATCH tests
+def test_teacher_can_patch_lecture_topic(api_client, teacher, lecture):
+    url = f"/api/courses/{lecture.course_id}/lectures/{lecture.id}/"
+    resp = auth(api_client, teacher).patch(url, {"topic": "Updated Topic"}, format="json")
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data["topic"] == "Updated Topic"
+
+
+def test_student_cannot_patch_lecture(api_client, student, lecture):
+    url = f"/api/courses/{lecture.course_id}/lectures/{lecture.id}/"
+    resp = auth(api_client, student).patch(url, {"topic": "Hack"}, format="json")
+    assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_empty_topic_validation_on_patch(api_client, teacher, lecture):
+    url = f"/api/courses/{lecture.course_id}/lectures/{lecture.id}/"
+    resp = auth(api_client, teacher).patch(url, {"topic": "   "}, format="json")
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+
+
+# Submission PATCH tests
+def test_student_can_patch_own_submission_content(api_client, student, submission):
+    url = f"/api/courses/{submission.homework.lecture.course_id}/lectures/{submission.homework.lecture_id}/homeworks/{submission.homework_id}/submissions/{submission.id}/"
+    resp = auth(api_client, student).patch(url, {"content": "New content"}, format="json")
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data["content"] == "New content"
+
+
+def test_other_student_cannot_patch_submission(api_client, unenrolled_student, submission):
+    url = f"/api/courses/{submission.homework.lecture.course_id}/lectures/{submission.homework.lecture_id}/homeworks/{submission.homework_id}/submissions/{submission.id}/"
+    resp = auth(api_client, unenrolled_student).patch(url, {"content": "steal"}, format="json")
+    assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_empty_content_validation_on_submission_patch(api_client, student, submission):
+    url = f"/api/courses/{submission.homework.lecture.course_id}/lectures/{submission.homework.lecture_id}/homeworks/{submission.homework_id}/submissions/{submission.id}/"
+    resp = auth(api_client, student).patch(url, {"content": "   "}, format="json")
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+
 # Create your tests here.
