@@ -302,6 +302,21 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
 
   /courses/{course_id}/lectures/{lecture_id}/:
+    get:
+      tags: [Lectures]
+      summary: Get specific lecture
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/Lecture'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
     patch:
       tags: [Lectures]
       summary: Patch lecture
@@ -420,6 +435,25 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
 
   /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/:
+    get:
+      tags: [Homeworks]
+      summary: Get specific homework
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/Homework'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
     patch:
       tags: [Homeworks]
       summary: Patch homework
@@ -551,6 +585,29 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
 
   /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/:
+    get:
+      tags: [Submissions]
+      summary: Get specific submission
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/HomeworkSubmission'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
     patch:
       tags: [Submissions]
       summary: Patch submission (owner)
@@ -689,6 +746,33 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
 
   /courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/submissions/{submission_id}/grades/{grade_id}/:
+    get:
+      tags: [Grades]
+      summary: Get specific grade
+      parameters:
+        - in: path
+          name: course_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: lecture_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: homework_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: submission_id
+          required: true
+          schema: {type: integer}
+        - in: path
+          name: grade_id
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK, content: {application/json: {schema: {$ref: '#/components/schemas/HomeworkGrade'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
     patch:
       tags: [Grades]
       summary: Patch grade (grading teacher)
