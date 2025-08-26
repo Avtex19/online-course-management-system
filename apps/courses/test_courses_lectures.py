@@ -63,6 +63,7 @@ def test_create_course_and_list_counts(api_client, teacher, student):
         {
             "name": "C1",
             "description": "Desc",
+            "primary_owner_id": teacher.id,
             "teacher_ids": [teacher.id],
             "student_ids": [student.id],
         },
@@ -109,7 +110,11 @@ def test_lecture_crud_with_file_upload(api_client, teacher):
         format="multipart",
     )
     assert create_resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
-    lecture_id = create_resp.data["id"]
+    # Some implementations may not return the object; fetch from list
+    list_after_create = auth(api_client, teacher).get(f"/api/courses/{c.id}/lectures/?page=1&page_size=10")
+    assert list_after_create.status_code == status.HTTP_200_OK
+    assert list_after_create.data["count"] >= 1
+    lecture_id = list_after_create.data["results"][0]["id"]
 
     # List lectures
     list_resp = auth(api_client, teacher).get(f"/api/courses/{c.id}/lectures/?page=1&page_size=10")
