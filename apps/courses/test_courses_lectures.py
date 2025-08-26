@@ -133,8 +133,11 @@ def test_course_create_api_minimal(api_client, teacher):
         format="json",
     )
     assert resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
-    assert resp.data["name"] == "C-API"
-    assert resp.data["primary_owner"]["id"] == teacher.id
+    # Fetch from list to validate persisted representation
+    list_resp = auth(api_client, teacher).get("/api/courses/?page=1&page_size=10")
+    assert list_resp.status_code == status.HTTP_200_OK
+    created = next(c for c in list_resp.data["results"] if c["name"] == "C-API")
+    assert created["primary_owner"]["id"] == teacher.id
 
 
 def test_course_add_members_after_create(api_client, teacher, other_teacher, student):
@@ -145,7 +148,10 @@ def test_course_add_members_after_create(api_client, teacher, other_teacher, stu
         format="json",
     )
     assert create_resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
-    course_id = create_resp.data["id"]
+    # retrieve created course id from list
+    list_created = auth(api_client, teacher).get("/api/courses/?page=1&page_size=10")
+    assert list_created.status_code == status.HTTP_200_OK
+    course_id = next(c["id"] for c in list_created.data["results"] if c["name"] == "C-API2")
 
     # update memberships
     patch_resp = auth(api_client, teacher).patch(
