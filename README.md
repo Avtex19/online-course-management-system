@@ -593,16 +593,15 @@ DELETE /api/courses/{course_id}/lectures/{lecture_id}/homeworks/{homework_id}/su
 Authorization: Bearer your-access-token
 ```
 
-#### Create Lecture
+#### Create Lecture (multipart upload)
+Use multipart/form-data to upload the presentation file.
 ```http
 POST /api/courses/{course_id}/lectures/
 Authorization: Bearer your-access-token
-Content-Type: application/json
+Content-Type: multipart/form-data
 
-{
-  "topic": "Introduction to Python Programming",
-  "presentation": "python_intro_slides.pdf"
-}
+topic=Introduction to Python Programming
+presentation=@/path/to/python_intro_slides.pdf
 ```
 
 #### Retrieve Lecture
@@ -615,19 +614,17 @@ Authorization: Bearer your-access-token
 ```http
 PUT /api/courses/{course_id}/lectures/{lecture_id}/
 Authorization: Bearer your-access-token
-Content-Type: application/json
+Content-Type: multipart/form-data
 
-{
-  "topic": "Advanced Python Concepts",
-  "presentation": "advanced_python.pdf"
-}
+topic=Advanced Python Concepts
+presentation=@/path/to/advanced_python.pdf
 ```
 
 #### Update Lecture (Partial)
 ```http
 PATCH /api/courses/{course_id}/lectures/{lecture_id}/
 Authorization: Bearer your-access-token
-Content-Type: application/json
+Content-Type: multipart/form-data (if replacing file) or application/json
 
 {
   "topic": "Updated Topic Name"
